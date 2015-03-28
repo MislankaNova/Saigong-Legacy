@@ -8,7 +8,7 @@
         
         xmlns:main="clr-namespace:Saigong"
         
-        Title="Singwu"
+        Title="Saigong"
         
         Style="{StaticResource WindowMax}"
         
