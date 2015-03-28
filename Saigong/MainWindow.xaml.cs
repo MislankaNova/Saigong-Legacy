@@ -153,7 +153,7 @@ namespace Saigong // TODO: Add plan mode
             {
                 location = saveLocation + location + ".txt";
             }
-            FormatExisting();
+            //FormatExisting();
             blocks = MainTextArea.Document.Blocks.GetEnumerator();
             for (int i = 0; i < MainTextArea.Document.Blocks.Count; i++)
             {
@@ -188,6 +188,8 @@ namespace Saigong // TODO: Add plan mode
                     tr.Load(fs, DataFormats.Text);
                 }
                 FormatExisting();
+                MainTextArea.Focus();
+                MainTextArea.CaretPosition = MainTextArea.Document.ContentEnd;
                 return true;
             }
             else
@@ -359,6 +361,10 @@ namespace Saigong // TODO: Add plan mode
 
         private void ChangeParagraphStyle(Paragraph p, string key)
         {
+            if (Array.IndexOf(StyleName, key) < 0)
+            {
+                key = "NormalText";
+            }
             p.Style = (Style)FindResource(key);
             p.Tag = key;
         }
@@ -422,7 +428,7 @@ namespace Saigong // TODO: Add plan mode
             }
             if (Keyboard.IsKeyDown(Key.LeftCtrl))
             {
-                IsolateElements(false);
+                //IsolateElements(false);
                 if ((e.Key == Key.S) || (e.Key == Key.O))
                 {
                     if (TitleTextArea.Text != "")
@@ -452,7 +458,7 @@ namespace Saigong // TODO: Add plan mode
                     case Key.LWin: this.WindowState = WindowState.Minimized; break;
                 }
                 e.Handled = true;
-                IsolateElements(true);
+                //IsolateElements(true);
             }
         }
 
