@@ -159,7 +159,14 @@ namespace Saigong // TODO: Add plan mode
             {
                 blocks.MoveNext();
                 b = blocks.Current;
-                text += StyleSymbol[Array.IndexOf(StyleName, b.Tag.ToString())];
+                if (b.Tag == null)
+                {
+                    text += StyleSymbol[Array.IndexOf(StyleName, "NormalText")];
+                }
+                else
+                {
+                    text += StyleSymbol[Array.IndexOf(StyleName, b.Tag.ToString())];
+                }
                 text += new TextRange(b.ContentStart, b.ContentEnd).Text;
                 text += "\r\n";
             }
