@@ -46,6 +46,14 @@ namespace Saigong // TODO: Add plan mode
             ""
         };
 
+        static Key[] StyleKey = new Key[4]
+        {
+            Key.D2,
+            Key.D1,
+            Key.D3,
+            Key.D0
+        };
+
         int blockCount
         {
             get
@@ -358,16 +366,17 @@ namespace Saigong // TODO: Add plan mode
         private void ApplyStyle(KeyEventArgs e)
         {
             Paragraph p = MainTextArea.CaretPosition.Paragraph;
+            int styleNo = Array.IndexOf(StyleKey, e.Key);
             ListenToStyleChanges = false;
-            e.Handled = true;
-            switch (e.Key)
+            if (styleNo > -1)
             {
-                case Key.D1: ChangeParagraphStyle(p, "TitleText"); return;
-                case Key.D2: ChangeParagraphStyle(p, "LesserTitleText"); return;
-                case Key.D3: ChangeParagraphStyle(p, "MetaText"); return;
-                case Key.D0: ChangeParagraphStyle(p, "NormalText"); return;
+                ChangeParagraphStyle(p, StyleName[styleNo]);
+                e.Handled = true;
             }
-            e.Handled = false;
+            else
+            {
+                e.Handled = false;
+            }
         }
 
         private void FormatExisting()
