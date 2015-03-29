@@ -117,6 +117,28 @@
                      FontFamily="Cambria, Times New Roman, STZhongsong, SimSun"
                      Foreground="{StaticResource MainFore}"
                      />
+        <RichTextBox Name="PlanTextArea"
+                     
+                     TextChanged="MainTextArea_TextChanged"
+                     MouseLeave="PlanTextArea_MouseLeave"
+                     
+                     Width="480"
+                     Margin="0, 160, 0, 120"
+                     VerticalAlignment="Top"
+                     HorizontalAlignment="Center"
+                 
+                     Background="{StaticResource Hole}"
+                     BorderThickness="0"
+                 
+                     AcceptsReturn="True"
+                     VerticalScrollBarVisibility="Hidden"
+                 
+                     FontSize="18pt"
+                     FontFamily="Cambria, Times New Roman, STZhongsong, SimSun"
+                     Foreground="{StaticResource MainForeLesser}"
+                     
+                     Visibility="Hidden"
+                     />
         <TextBlock Name="StatusDisplay"
                    MinWidth="80"
                    Padding="10, 10, 10, 10"

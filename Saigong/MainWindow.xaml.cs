@@ -25,10 +25,14 @@ namespace Saigong // TODO: Add plan mode
 
         static string saveLocation = "saves/";
         static string backLocation = "saves/back/";
+        static string planLocation = "saves/plan/";
 
         bool ListenToStyleChanges;
 
         int findIndexStart;
+
+        TextPointer mainCaretPosition;
+        TextPointer planCaretPosition;
 
         static string[] StyleName = new string[4]
         {
@@ -91,6 +95,7 @@ namespace Saigong // TODO: Add plan mode
         private void Initialise()
         {
             Directory.CreateDirectory("saves/back/");
+            Directory.CreateDirectory("saves/plan/");
             FindInitialise(true);
             TitleTextArea.Focus();
             WindowTitle.Text = Lang.title;
@@ -170,7 +175,7 @@ namespace Saigong // TODO: Add plan mode
                 text += new TextRange(b.ContentStart, b.ContentEnd).Text;
                 text += "\r\n";
             }
-            File.WriteAllText(location, text);
+            File.WriteAllText(location, text, Encoding.UTF8);
         }
 
         private bool LoadText(string location)
@@ -197,10 +202,12 @@ namespace Saigong // TODO: Add plan mode
                 FormatExisting();
                 MainTextArea.Focus();
                 MainTextArea.CaretPosition = MainTextArea.Document.ContentEnd;
+                mainCaretPosition = MainTextArea.CaretPosition;
                 return true;
             }
             else
             {
+                mainCaretPosition = MainTextArea.Document.ContentEnd;
                 return false;
             }
         }
@@ -327,6 +334,7 @@ namespace Saigong // TODO: Add plan mode
             else
             {
                 SaveText(TitleTextArea.Text, back);
+                SavePlan(TitleTextArea.Text);
             }
             SetStatus(Lang.saved);
         }
@@ -341,6 +349,15 @@ namespace Saigong // TODO: Add plan mode
             else
             {
                 SetStatus(Lang.loadFail);
+            }
+            if (LoadPlan(TitleTextArea.Text))
+            {
+                SetStatus(Lang.planLoaded);
+                BackupCurrent();
+            }
+            else
+            {
+                SetStatus(Lang.planLoadFail);
             }
         }
 
@@ -378,6 +395,10 @@ namespace Saigong // TODO: Add plan mode
 
         private void ApplyStyle(KeyEventArgs e)
         {
+            if (MainTextArea.IsFocused == false)
+            {
+                return;
+            }
             Paragraph p = MainTextArea.CaretPosition.Paragraph;
             int styleNo = Array.IndexOf(StyleKey, e.Key);
             ListenToStyleChanges = false;
@@ -427,6 +448,73 @@ namespace Saigong // TODO: Add plan mode
             MainTextArea.Document.Blocks.AddRange(newBlocks);
         }
 
+        private void SavePlan(string location)
+        {
+            IEnumerator<Block> paras = PlanTextArea.Document.Blocks.GetEnumerator();
+            string toSave = "";
+            location = planLocation + location + ".txt";
+            for (int i = 0; i < PlanTextArea.Document.Blocks.Count; i++)
+            {
+                paras.MoveNext();
+                toSave += new TextRange(paras.Current.ContentStart, paras.Current.ContentEnd).Text;
+                toSave += "\r\n";
+            }
+            File.WriteAllText(location, toSave, Encoding.UTF8);
+        }
+
+        private bool LoadPlan(string location)
+        {
+            FileStream fs;
+            location = planLocation + location + ".txt";
+            if (File.Exists(location))
+            {
+                fs = new FileStream
+                    (
+                    location,
+                    FileMode.Open,
+                    FileAccess.Read
+                    );
+                using (fs)
+                {
+                    TextRange tr = new TextRange
+                        (
+                        PlanTextArea.Document.ContentStart,
+                        PlanTextArea.Document.ContentEnd
+                        );
+                    tr.Load(fs, DataFormats.Text);
+                }
+                PlanTextArea.Focus();
+                PlanTextArea.CaretPosition = PlanTextArea.Document.ContentEnd;
+                planCaretPosition = PlanTextArea.CaretPosition;
+                return true;
+            }
+            else
+            {
+                planCaretPosition = PlanTextArea.Document.ContentEnd;
+                return false;
+            }
+        }
+
+        private void TogglePlan()
+        {
+            if (PlanTextArea.Visibility == Visibility.Hidden)
+            {
+                mainCaretPosition = MainTextArea.CaretPosition;
+                MainTextArea.Visibility = Visibility.Hidden;
+                PlanTextArea.Visibility = Visibility.Visible;
+                PlanTextArea.Focus();
+                PlanTextArea.CaretPosition = planCaretPosition;
+            }
+            else
+            {
+                planCaretPosition = PlanTextArea.CaretPosition;
+                PlanTextArea.Visibility = Visibility.Hidden;
+                MainTextArea.Visibility = Visibility.Visible;
+                MainTextArea.Focus();
+                MainTextArea.CaretPosition = mainCaretPosition;
+            }
+        }
+
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             if (ListenToStyleChanges)
@@ -463,6 +551,7 @@ namespace Saigong // TODO: Add plan mode
                     case Key.W: ToWindow(); break;
                     case Key.N: ShowTime(); break;
                     case Key.LWin: this.WindowState = WindowState.Minimized; break;
+                    case Key.Tab: TogglePlan(); break;
                 }
                 e.Handled = true;
                 //IsolateElements(true);
@@ -492,6 +581,11 @@ namespace Saigong // TODO: Add plan mode
         private void Window_StateChanged(object sender, EventArgs e)
         {
             ;
+        }
+
+        private void PlanTextArea_MouseLeave(object sender, MouseEventArgs e)
+        {
+            ShowHandle();
         }
     }
 }
