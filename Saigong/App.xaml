@@ -27,21 +27,25 @@
             <Setter Property="MinWidth" Value="640px"/>
         </Style>
         <Style x:Key="TitleText" TargetType="Block">
-            <Setter Property="FontSize" Value="30pt"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="24pt"/>
             <Setter Property="FontFamily" Value="Cambria, Times New Roman, STZhongsong, SimSun"/>
             <Setter Property="Foreground" Value="{StaticResource TitleFore}"/>
         </Style>
         <Style x:Key="LesserTitleText" TargetType="Block">
+            <Setter Property="TextAlignment" Value="Left"/>
             <Setter Property="FontSize" Value="24pt"/>
             <Setter Property="FontFamily" Value="Cambria, Times New Roman, STZhongsong, SimSun"/>
             <Setter Property="Foreground" Value="{StaticResource TitleFore}"/>
         </Style>
         <Style x:Key="MetaText" TargetType="Block">
+            <Setter Property="TextAlignment" Value="Left"/>
             <Setter Property="FontSize" Value="16pt"/>
             <Setter Property="FontFamily" Value="Footlight MT, Times New Roman, STsong, SimSun"/>
             <Setter Property="Foreground" Value="{StaticResource MainForeLesser}"/>
         </Style>
         <Style x:Key="NormalText" TargetType="Block">
+            <Setter Property="TextAlignment" Value="Left"/>
             <Setter Property="FontSize" Value="18pt"/>
             <Setter Property="FontFamily" Value="Cambria, Times New Roman, STZhongsong, SimSun"/>
             <Setter Property="Foreground" Value="{StaticResource MainFore}"/>
