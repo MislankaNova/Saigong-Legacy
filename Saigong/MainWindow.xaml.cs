@@ -129,22 +129,6 @@ namespace Saigong // TODO: Add plan mode
             this.ResizeMode = ResizeMode.NoResize;
         }
 
-        private void ToWindow()
-        {
-            if (this.WindowState == WindowState.Maximized)
-            {
-                this.Style = (Style)App.Current.FindResource("WindowWin");
-                WindowBorder.Visibility = Visibility.Visible;
-                ShowHandle();
-            }
-            else
-            {
-                this.Style = (Style)App.Current.FindResource("WindowMax");
-                WindowBorder.Visibility = Visibility.Hidden;
-                HideHandle();
-            }
-        }
-
         private void SaveText(string location, bool back)
         {
             IEnumerator<Block> blocks;
@@ -515,6 +499,18 @@ namespace Saigong // TODO: Add plan mode
             }
         }
 
+        private void ChangeWindowState()
+        {
+            if (this.WindowState == WindowState.Maximized)
+            {
+                this.WindowState = WindowState.Normal;
+            }
+            else if (this.WindowState == WindowState.Normal)
+            {
+                this.WindowState = WindowState.Maximized;
+            }
+        }
+
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             if (ListenToStyleChanges)
@@ -548,7 +544,7 @@ namespace Saigong // TODO: Add plan mode
                     case Key.Q: ShutProgram(); break;
                     case Key.M: CharCount(); break;
                     //case Key.F: FindText(); break; YOU ARE NOT GOING TO FIND ANYTHING
-                    case Key.W: ToWindow(); break;
+                    case Key.W: ChangeWindowState(); break;
                     case Key.N: ShowTime(); break;
                     case Key.LWin: this.WindowState = WindowState.Minimized; break;
                     case Key.Tab: TogglePlan(); break;
@@ -580,7 +576,18 @@ namespace Saigong // TODO: Add plan mode
 
         private void Window_StateChanged(object sender, EventArgs e)
         {
-            ;
+            if (this.WindowState == WindowState.Normal)
+            {
+                this.Style = (Style)App.Current.FindResource("WindowWin");
+                WindowBorder.Visibility = Visibility.Visible;
+                ShowHandle();
+            }
+            else if (this.WindowState == WindowState.Maximized)
+            {
+                this.Style = (Style)App.Current.FindResource("WindowMax");
+                WindowBorder.Visibility = Visibility.Hidden;
+                HideHandle();
+            }
         }
 
         private void PlanTextArea_MouseLeave(object sender, MouseEventArgs e)
