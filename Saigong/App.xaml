@@ -12,6 +12,7 @@
         <SolidColorBrush x:Key="AuxBack" Color="#FF505050"/>
         <SolidColorBrush x:Key="HandleBack" Color="#FFA00000"/>
         <SolidColorBrush x:Key="HandleFore" Color="#FFF0F0F0"/>
+        <SolidColorBrush x:Key="Selection" Color="#FFE0E0E0"/>
 
         <Style x:Key="WindowMax" TargetType="{x:Type Window}">
             <Setter Property="ResizeMode" Value="NoResize"/>
@@ -50,5 +51,27 @@
             <Setter Property="FontFamily" Value="Cambria, Times New Roman, STZhongsong, SimSun"/>
             <Setter Property="Foreground" Value="{StaticResource MainFore}"/>
         </Style>
+        
+        <Style x:Key="MessageTextBlock" TargetType="TextBlock">
+            <Setter Property="MinWidth" Value="80px"/>
+            <Setter Property="Padding" Value="10, 10, 10, 10"/>
+            <Setter Property="VerticalAlignment" Value="Bottom"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="Background" Value="{StaticResource AuxBack}"/>
+            <Setter Property="Foreground" Value="{StaticResource AuxFore}"/>
+            <Setter Property="FontSize" Value="14pt"/>
+            <Setter Property="FontFamily" Value="Arial, Microsoft YaHei UI"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+        </Style>
+        
+        <Storyboard x:Key="FadeOut">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity">
+                <DoubleAnimationUsingKeyFrames.KeyFrames>
+                    <LinearDoubleKeyFrame KeyTime="0:0:0" Value="1.0"/>
+                    <LinearDoubleKeyFrame KeyTime="0:0:1" Value="1.0"/>
+                    <LinearDoubleKeyFrame KeyTime="0:0:1.5" Value="0.0"/>
+                </DoubleAnimationUsingKeyFrames.KeyFrames>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
     </Application.Resources>
 </Application>

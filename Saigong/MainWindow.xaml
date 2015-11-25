@@ -18,6 +18,7 @@
           
           Background="{StaticResource WholeBack}"
           >
+        <Grid Name="MessageContainerGrid"/>
         <Rectangle Name="WindowBorder"
                    
                    Panel.ZIndex="2"
@@ -79,6 +80,9 @@
                  Foreground="{StaticResource TitleFore}"
                  />
         <TextBox Name="OperationTextArea"
+                 
+                 TextChanged="OperationTextArea_TextChanged"
+                 
                  MinWidth="80"
                  MaxWidth="200"
                  Padding="10, 10, 10, 10"
@@ -116,6 +120,8 @@
                      FontSize="18pt"
                      FontFamily="Cambria, Times New Roman, STZhongsong, SimSun"
                      Foreground="{StaticResource MainFore}"
+                     
+                     SelectionBrush="{StaticResource Selection}"
                      />
         <RichTextBox Name="PlanTextArea"
                      
@@ -138,8 +144,10 @@
                      Foreground="{StaticResource MainForeLesser}"
                      
                      Visibility="Hidden"
+                     
+                     SelectionBrush="{StaticResource Selection}"
                      />
-        <TextBlock Name="StatusDisplay"
+        <!--TextBlock Name="StatusDisplay"
                    MinWidth="80"
                    Padding="10, 10, 10, 10"
                    Margin="0, 0, 20, 20"
@@ -153,6 +161,6 @@
                    Foreground="{StaticResource AuxFore}"
                    
                    TextAlignment="Center"
-               />
+               /-->
     </Grid>
 </Window>

@@ -11,8 +11,11 @@ using System.Windows.Input;
 using System.Windows.Controls;
 
 using System.IO; // IOSYS
+using System.Timers; // Sakuya! Sakuya! Pad-chou de ite dareda
+using System.Windows.Media;
+using System.Windows.Media.Animation;
 
-namespace Saigong // TODO: Add plan mode
+namespace Saigong
 {
     public enum StyleName
     {
@@ -31,8 +34,12 @@ namespace Saigong // TODO: Add plan mode
 
         int findIndexStart;
 
+        TextPointer findStart;
+
         TextPointer mainCaretPosition;
         TextPointer planCaretPosition;
+
+        List<TextBlock> messageTextBlocks;
 
         static string[] StyleName = new string[4]
         {
@@ -102,12 +109,13 @@ namespace Saigong // TODO: Add plan mode
             WindowClose.Text = Lang.batsu;
             HideHandle();
             ListenToStyleChanges = false;
-            SetStatus(Lang.startupFinished);
+            messageTextBlocks = new List<TextBlock>();
+            AddMessage(Lang.startupFinished);
+            findStart = MainTextArea.Document.ContentStart;
         }
 
         private void EditStart()
         {
-            StatusDisplay.Visibility = Visibility.Hidden;
             OperationTextArea.Visibility = Visibility.Hidden;
             HideHandle();
         }
@@ -196,10 +204,22 @@ namespace Saigong // TODO: Add plan mode
             }
         }
 
-        private void SetStatus(string text)
+        private void AddMessage(string text)
         {
-            StatusDisplay.Visibility = Visibility.Visible;
-            StatusDisplay.Text = text;
+            if (messageTextBlocks.Count<TextBlock>(t => t.Opacity == 0.0) == messageTextBlocks.Count)
+            {
+                messageTextBlocks.Clear();
+                MessageContainerGrid.Children.Clear();
+            }
+            TextBlock tb;
+            tb = new TextBlock();
+            tb.Style = (Style)App.Current.Resources["MessageTextBlock"];
+            tb.Margin = new Thickness(0, 0, 20, 20 + (messageTextBlocks.Count * 50));
+            tb.Text = text;
+            MessageContainerGrid.Children.Add(tb);
+            messageTextBlocks.Add(tb);
+            tb.BeginStoryboard((Storyboard)App.Current.Resources["FadeOut"]);
+            return;
         }
 
         private void IsolateElements(bool enable)
@@ -227,80 +247,68 @@ namespace Saigong // TODO: Add plan mode
             findIndexStart = 0;
         }
 
-        private void FindText() // TODO: Fix search
+        private void FindText()
         {
+            String text = OperationTextArea.Text;
+
             if (OperationTextArea.Visibility == Visibility.Hidden)
             {
                 FindInitialise(false);
                 Keyboard.Focus(OperationTextArea);
+                return;
             }
-            else
+
+            if (OperationTextArea.Text == "")
             {
-                if (OperationTextArea.Text == "")
-                {
-                    SetStatus(Lang.nullOperation);
-                }
-                else
-                {
-                    int findIndexCurrent;
-                    findIndexCurrent = mainTextRange.Text.IndexOf
-                        (
-                        OperationTextArea.Text,
-                        findIndexStart
-                        );
-                    if (findIndexCurrent == -1)
-                    {
-                        if (findIndexStart == 0)
-                        {
-                            SetStatus(Lang.notFound);
-                        }
-                        else
-                        {
-                            findIndexStart = 0;
-                            FindText();
-                        }
-                    }
-                    else
-                    {
-                        int blockCountCurrent = 1;
-                        int blockCountIndexCurrent = 0;
-                        int blockCountIndex = 0;
-                        blockCountIndex = mainTextRange.Text.IndexOf
-                            (
-                            "\r\n",
-                            blockCountIndexCurrent
-                            );
-                        while (blockCountIndex < findIndexCurrent)
-                        {
-                            blockCountCurrent++;
-                            blockCountIndexCurrent = blockCountIndex + 1;
-                            blockCountIndex = mainTextRange.Text.IndexOf
-                                (
-                                "\r\n",
-                                blockCountIndexCurrent
-                                );
-                        }
-                        SetStatus(Lang.found);
-                        MainTextArea.Selection.Select
-                            (
-                            MainTextArea.Document.ContentStart.GetPositionAtOffset
-                                (
-                                findIndexCurrent + (blockCountCurrent * 2)
-                                ),
-                            MainTextArea.Document.ContentStart.GetPositionAtOffset
-                                (
-                                findIndexCurrent + (blockCountCurrent * 2) + OperationTextArea.Text.Length
-                                )
-                            );
-                        findIndexStart = findIndexCurrent + 1;
-                    }
-                }
+                AddMessage(Lang.nullOperation);
+                return;
             }
+
+            BEGIN:
+
+            foreach (Block b in MainTextArea.Document.Blocks)
+            {
+                TextRange tr = new TextRange(b.ContentStart, b.ContentEnd);
+                int index = 0;
+                if (tr.Start.GetOffsetToPosition(findStart) > 0)
+                {
+                    index = tr.Start.GetOffsetToPosition(findStart);
+                }
+                if (index >= tr.Text.Length)
+                {
+                    goto NEXT;
+                }
+                index = tr.Text.IndexOf(text, index);
+                if (index == -1)
+                {
+                    goto NEXT;
+                }
+                if (tr.Start.GetPositionAtOffset(index).GetOffsetToPosition(findStart) <= 0)
+                {
+                    MainTextArea.Focus();
+                    MainTextArea.Selection.Select
+                        (
+                        tr.Start.GetPositionAtOffset(index),
+                        tr.Start.GetPositionAtOffset(index + text.Length)
+                        );
+                    findStart = tr.Start.GetPositionAtOffset(index + 1);
+                    AddMessage(Lang.found);
+                    return;
+                }
+            NEXT:
+                ;
+            }
+            if (findStart != MainTextArea.Document.ContentStart)
+            {
+                findStart = MainTextArea.Document.ContentStart;
+                goto BEGIN;
+            }
+            AddMessage(Lang.notFound);
         }
 
         private void CharCount()
         {
-            SetStatus
+            AddMessage
                 (
                 (mainTextRange.Text.Length - blockCount).ToString() + Lang.chara
                 );
@@ -320,40 +328,40 @@ namespace Saigong // TODO: Add plan mode
                 SaveText(TitleTextArea.Text, back);
                 SavePlan(TitleTextArea.Text);
             }
-            SetStatus(Lang.saved);
+            AddMessage(Lang.saved);
         }
 
         private void LoadFile()
         {
             if (LoadText(TitleTextArea.Text))
             {
-                SetStatus(Lang.loaded);
+                AddMessage(Lang.loaded);
                 BackupCurrent();
             }
             else
             {
-                SetStatus(Lang.loadFail);
+                AddMessage(Lang.loadFail);
             }
             if (LoadPlan(TitleTextArea.Text))
             {
-                SetStatus(Lang.planLoaded);
+                AddMessage(Lang.planLoaded);
                 BackupCurrent();
             }
             else
             {
-                SetStatus(Lang.planLoadFail);
+                AddMessage(Lang.planLoadFail);
             }
         }
 
         private void ShutProgram()
         {
-            SetStatus(Lang.shutdown);
+            AddMessage(Lang.shutdown);
             Application.Current.Shutdown();
         }
 
         private void ShowTime()
         {
-            SetStatus(DateTime.Now.TimeOfDay.ToString(@"hh\:mm"));
+            AddMessage(DateTime.Now.TimeOfDay.ToString(@"hh\:mm"));
         }
 
         private void BackupCurrent()
@@ -363,7 +371,7 @@ namespace Saigong // TODO: Add plan mode
                 ))
             {
                 SaveFile(true);
-                SetStatus(Lang.backupDone);
+                AddMessage(Lang.backupDone);
             }
         }
 
@@ -535,7 +543,7 @@ namespace Saigong // TODO: Add plan mode
                     }
                     else
                     {
-                        SetStatus(Lang.nullTitle);
+                        AddMessage(Lang.nullTitle);
                     }
                 }
                 switch (e.Key)
@@ -543,7 +551,7 @@ namespace Saigong // TODO: Add plan mode
                     case Key.LeftAlt: ListenToStyleChanges = true; break;
                     case Key.Q: ShutProgram(); break;
                     case Key.M: CharCount(); break;
-                    //case Key.F: FindText(); break; YOU ARE NOT GOING TO FIND ANYTHING
+                    case Key.F: FindText(); break;
                     case Key.W: ChangeWindowState(); break;
                     case Key.N: ShowTime(); break;
                     case Key.LWin: this.WindowState = WindowState.Minimized; break;
@@ -553,10 +561,16 @@ namespace Saigong // TODO: Add plan mode
                 //IsolateElements(true);
             }
         }
-
+        
         private void MainTextArea_TextChanged(object sender, TextChangedEventArgs e)
         {
             EditStart();
+            findStart = MainTextArea.Document.ContentStart;
+        }
+
+        private void OperationTextArea_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            findStart = MainTextArea.Document.ContentStart;
         }
 
         private void WindowClose_MouseDown(object sender, MouseButtonEventArgs e)
