@@ -10,20 +10,20 @@
         
         Title="Saigong"
         
-        Style="{StaticResource WindowMax}"
+        Style="{DynamicResource WindowMax}"
         
         AllowsTransparency="True"
         >
     <Grid Name="MainGrid"
           
-          Background="{StaticResource WholeBack}"
+          Background="{DynamicResource WholeBack}"
           >
         <Grid Name="MessageContainerGrid"/>
         <Rectangle Name="WindowBorder"
                    
                    Panel.ZIndex="2"
                    
-                   Stroke="{StaticResource HandleBack}"
+                   Stroke="{DynamicResource HandleBack}"
                    StrokeThickness="1"
                    
                    Visibility="Hidden"
@@ -36,11 +36,11 @@
                    VerticalAlignment="Top"
                    HorizontalAlignment="Stretch"
                    
-                   Background="{StaticResource HandleBack}"
+                   Background="{DynamicResource HandleBack}"
                    
                    FontSize="16pt"
-                   FontFamily="Cambria, Times New Roman, STZhongsong, SimSun"
-                   Foreground="{StaticResource HandleFore}"
+                   FontFamily="{DynamicResource MainTextFamily}"
+                   Foreground="{DynamicResource HandleFore}"
                    
                    TextAlignment="Left"
                    
@@ -56,7 +56,7 @@
                    
                    FontSize="16pt"
                    FontFamily="Calibri, Arial, sans-serif"
-                   Foreground="{StaticResource HandleFore}"
+                   Foreground="{DynamicResource HandleFore}"
                    
                    TextAlignment="Center"
                    
@@ -72,12 +72,12 @@
                  
                  Padding="-100,0,0,0"
                  
-                 Background="{StaticResource Hole}"
+                 Background="{DynamicResource Hole}"
                  BorderThickness="0"
                  
                  FontSize="30pt"
-                 FontFamily="Cambria, Times New Roman, STZhongsong, SimSun"
-                 Foreground="{StaticResource TitleFore}"
+                 FontFamily="{DynamicResource MainTextFamily}"
+                 Foreground="{DynamicResource TitleFore}"
                  />
         <TextBox Name="OperationTextArea"
                  
@@ -90,12 +90,12 @@
                  VerticalAlignment="Top"
                  HorizontalAlignment="Right"
                  
-                 Background="{StaticResource AuxBack}"
+                 Background="{DynamicResource AuxBack}"
                  BorderThickness="0"
                  
                  FontSize="14pt"
-                 FontFamily="Arial, Microsoft YaHei UI"
-                 Foreground="{StaticResource AuxFore}"
+                 FontFamily="{DynamicResource AuxTextFamily}"
+                 Foreground="{DynamicResource AuxFore}"
                    
                  TextAlignment="Center"
                  
@@ -111,17 +111,17 @@
                      VerticalAlignment="Top"
                      HorizontalAlignment="Center"
                  
-                     Background="{StaticResource Hole}"
+                     Background="{DynamicResource Hole}"
                      BorderThickness="0"
                  
                      AcceptsReturn="True"
                      VerticalScrollBarVisibility="Hidden"
                  
                      FontSize="18pt"
-                     FontFamily="Cambria, Times New Roman, STZhongsong, SimSun"
-                     Foreground="{StaticResource MainFore}"
+                     FontFamily="{DynamicResource MainTextFamily}"
+                     Foreground="{DynamicResource MainFore}"
                      
-                     SelectionBrush="{StaticResource Selection}"
+                     SelectionBrush="{DynamicResource Selection}"
                      />
         <RichTextBox Name="PlanTextArea"
                      
@@ -133,34 +133,19 @@
                      VerticalAlignment="Top"
                      HorizontalAlignment="Center"
                  
-                     Background="{StaticResource Hole}"
+                     Background="{DynamicResource Hole}"
                      BorderThickness="0"
                  
                      AcceptsReturn="True"
                      VerticalScrollBarVisibility="Hidden"
                  
                      FontSize="18pt"
-                     FontFamily="Cambria, Times New Roman, STZhongsong, SimSun"
-                     Foreground="{StaticResource MainForeLesser}"
+                     FontFamily="{DynamicResource MainTextFamily}"
+                     Foreground="{DynamicResource MainForeLesser}"
                      
                      Visibility="Hidden"
                      
-                     SelectionBrush="{StaticResource Selection}"
+                     SelectionBrush="{DynamicResource Selection}"
                      />
-        <!--TextBlock Name="StatusDisplay"
-                   MinWidth="80"
-                   Padding="10, 10, 10, 10"
-                   Margin="0, 0, 20, 20"
-                   VerticalAlignment="Bottom"
-                   HorizontalAlignment="Right"
-               
-                   Background="{StaticResource AuxBack}"        
-               
-                   FontSize="14pt"
-                   FontFamily="Arial, Microsoft YaHei UI"
-                   Foreground="{StaticResource AuxFore}"
-                   
-                   TextAlignment="Center"
-               /-->
     </Grid>
 </Window>

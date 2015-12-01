@@ -2,6 +2,10 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="MainWindow.xaml">
+    
+    <!-- All widly used values, eg. fontfamily, should use colour in resource. -->
+    <!-- The none-common values, eg. the width of a certain control, are not in resource. -->
+    
     <Application.Resources>
         <SolidColorBrush x:Key="Hole" Color="#00000000"/>
         <SolidColorBrush x:Key="WholeBack" Color="#FF202020"/>
@@ -13,6 +17,9 @@
         <SolidColorBrush x:Key="HandleBack" Color="#FFA00000"/>
         <SolidColorBrush x:Key="HandleFore" Color="#FFF0F0F0"/>
         <SolidColorBrush x:Key="Selection" Color="#FFE0E0E0"/>
+
+        <FontFamily x:Key="MainTextFamily">Cambria, Times New Roman, STZhongsong, SimSun, serif</FontFamily>
+        <FontFamily x:Key="AuxTextFamily">Arial, Microsoft YaHei UI, sans-serif</FontFamily>
 
         <Style x:Key="WindowMax" TargetType="{x:Type Window}">
             <Setter Property="ResizeMode" Value="NoResize"/>
@@ -29,26 +36,26 @@
         <Style x:Key="TitleText" TargetType="Block">
             <Setter Property="TextAlignment" Value="Center"/>
             <Setter Property="FontSize" Value="24pt"/>
-            <Setter Property="FontFamily" Value="Cambria, Times New Roman, STZhongsong, SimSun"/>
-            <Setter Property="Foreground" Value="{StaticResource TitleFore}"/>
+            <Setter Property="FontFamily" Value="{DynamicResource MainTextFamily}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TitleFore}"/>
         </Style>
         <Style x:Key="LesserTitleText" TargetType="Block">
             <Setter Property="TextAlignment" Value="Left"/>
             <Setter Property="FontSize" Value="24pt"/>
-            <Setter Property="FontFamily" Value="Cambria, Times New Roman, STZhongsong, SimSun"/>
-            <Setter Property="Foreground" Value="{StaticResource TitleFore}"/>
+            <Setter Property="FontFamily" Value="{DynamicResource MainTextFamily}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TitleFore}"/>
         </Style>
         <Style x:Key="MetaText" TargetType="Block">
             <Setter Property="TextAlignment" Value="Left"/>
             <Setter Property="FontSize" Value="16pt"/>
-            <Setter Property="FontFamily" Value="Footlight MT, Times New Roman, STsong, SimSun"/>
-            <Setter Property="Foreground" Value="{StaticResource MainForeLesser}"/>
+            <Setter Property="FontFamily" Value="{DynamicResource MainTextFamily}"/>
+            <Setter Property="Foreground" Value="{DynamicResource MainForeLesser}"/>
         </Style>
         <Style x:Key="NormalText" TargetType="Block">
             <Setter Property="TextAlignment" Value="Left"/>
             <Setter Property="FontSize" Value="18pt"/>
-            <Setter Property="FontFamily" Value="Cambria, Times New Roman, STZhongsong, SimSun"/>
-            <Setter Property="Foreground" Value="{StaticResource MainFore}"/>
+            <Setter Property="FontFamily" Value="{DynamicResource MainTextFamily}"/>
+            <Setter Property="Foreground" Value="{DynamicResource MainFore}"/>
         </Style>
         
         <Style x:Key="MessageTextBlock" TargetType="TextBlock">
@@ -56,10 +63,10 @@
             <Setter Property="Padding" Value="10, 10, 10, 10"/>
             <Setter Property="VerticalAlignment" Value="Bottom"/>
             <Setter Property="HorizontalAlignment" Value="Right"/>
-            <Setter Property="Background" Value="{StaticResource AuxBack}"/>
-            <Setter Property="Foreground" Value="{StaticResource AuxFore}"/>
+            <Setter Property="Background" Value="{DynamicResource AuxBack}"/>
+            <Setter Property="Foreground" Value="{DynamicResource AuxFore}"/>
             <Setter Property="FontSize" Value="14pt"/>
-            <Setter Property="FontFamily" Value="Arial, Microsoft YaHei UI"/>
+            <Setter Property="FontFamily" Value="{DynamicResource AuxTextFamily}"/>
             <Setter Property="TextAlignment" Value="Center"/>
         </Style>
         
