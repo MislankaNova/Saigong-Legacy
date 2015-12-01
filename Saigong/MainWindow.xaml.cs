@@ -24,6 +24,8 @@ namespace Saigong
 
     public partial class MainWindow : Window
     {
+        Lang lang;
+
         delegate int intDelegate();
 
         static string saveLocation = "saves/";
@@ -31,8 +33,6 @@ namespace Saigong
         static string planLocation = "saves/plan/";
 
         bool ListenToStyleChanges;
-
-        int findIndexStart;
 
         TextPointer findStart;
 
@@ -101,16 +101,17 @@ namespace Saigong
 
         private void Initialise()
         {
+            lang = new Lang("hant"); // Use "hant" (Han traditional) for now. Use loaded prefrence in the future.
             Directory.CreateDirectory("saves/back/");
             Directory.CreateDirectory("saves/plan/");
             FindInitialise(true);
             TitleTextArea.Focus();
-            WindowTitle.Text = Lang.title;
-            WindowClose.Text = Lang.batsu;
+            WindowTitle.Text = lang["title"];
+            WindowClose.Text = "X";
             HideHandle();
             ListenToStyleChanges = false;
             messageTextBlocks = new List<TextBlock>();
-            AddMessage(Lang.startupFinished);
+            AddMessage(lang["startupFinished"]);
             findStart = MainTextArea.Document.ContentStart;
         }
 
@@ -244,7 +245,6 @@ namespace Saigong
                 OperationTextArea.Visibility = Visibility.Visible;
             }
             OperationTextArea.Text = "";
-            findIndexStart = 0;
         }
 
         private void FindText()
@@ -260,7 +260,7 @@ namespace Saigong
 
             if (OperationTextArea.Text == "")
             {
-                AddMessage(Lang.nullOperation);
+                AddMessage(lang["nullOperation"]);
                 return;
             }
 
@@ -292,7 +292,7 @@ namespace Saigong
                         tr.Start.GetPositionAtOffset(index + text.Length)
                         );
                     findStart = tr.Start.GetPositionAtOffset(index + 1);
-                    AddMessage(Lang.found);
+                    AddMessage(lang["found"]);
                     return;
                 }
             NEXT:
@@ -303,14 +303,14 @@ namespace Saigong
                 findStart = MainTextArea.Document.ContentStart;
                 goto BEGIN;
             }
-            AddMessage(Lang.notFound);
+            AddMessage(lang["notFound"]);
         }
 
         private void CharCount()
         {
             AddMessage
                 (
-                (mainTextRange.Text.Length - blockCount).ToString() + Lang.chara
+                (mainTextRange.Text.Length - blockCount).ToString() + lang["chara"]
                 );
         }
 
@@ -328,34 +328,34 @@ namespace Saigong
                 SaveText(TitleTextArea.Text, back);
                 SavePlan(TitleTextArea.Text);
             }
-            AddMessage(Lang.saved);
+            AddMessage(lang["saved"]);
         }
 
         private void LoadFile()
         {
             if (LoadText(TitleTextArea.Text))
             {
-                AddMessage(Lang.loaded);
+                AddMessage(lang["loaded"]);
                 BackupCurrent();
             }
             else
             {
-                AddMessage(Lang.loadFail);
+                AddMessage(lang["loadFail"]);
             }
             if (LoadPlan(TitleTextArea.Text))
             {
-                AddMessage(Lang.planLoaded);
+                AddMessage(lang["planLoaded"]);
                 BackupCurrent();
             }
             else
             {
-                AddMessage(Lang.planLoadFail);
+                AddMessage(lang["planLoadFail"]);
             }
         }
 
         private void ShutProgram()
         {
-            AddMessage(Lang.shutdown);
+            AddMessage(lang["shutdown"]);
             Application.Current.Shutdown();
         }
 
@@ -371,7 +371,7 @@ namespace Saigong
                 ))
             {
                 SaveFile(true);
-                AddMessage(Lang.backupDone);
+                AddMessage(lang["autoBackupDone"]);
             }
         }
 
@@ -543,7 +543,7 @@ namespace Saigong
                     }
                     else
                     {
-                        AddMessage(Lang.nullTitle);
+                        AddMessage(lang["nullTitle"]);
                     }
                 }
                 switch (e.Key)
