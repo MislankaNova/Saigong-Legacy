@@ -6,6 +6,8 @@
     <!-- All widly used values, eg. fontfamily, should use colour in resource. -->
     <!-- The none-common values, eg. the width of a certain control, are not in resource. -->
     
+    <!-- The default value are in this file. -->
+    
     <Application.Resources>
         <SolidColorBrush x:Key="Hole" Color="#00000000"/>
         <SolidColorBrush x:Key="WholeBack" Color="#FF202020"/>

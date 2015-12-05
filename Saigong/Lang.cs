@@ -41,6 +41,22 @@ namespace Saigong
             this["chara"] = "字";
             this["shutdown"] = "再見";
 
+            Dictionary<string, string> langFile =
+                ConfigLoader.LoadConfigFile("lang/" + name + ".txt");
+
+            if (langFile == null)
+            {
+                return;
+            }
+
+            foreach (var p in langFile)
+            {
+                if (this.Keys.Contains(p.Key))
+                {
+                    this[p.Key] = p.Value;
+                }
+            }
+
             // Then the language file should be loaded
             if (! File.Exists("lang/" + name + ".txt"))
             {
