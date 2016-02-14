@@ -9,6 +9,11 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.ComponentModel;
 
+// This entire block of code
+// Is originally written by
+// Markus Huetter
+// On Stack Overflow, question 5820578
+
 namespace Saigong
 {
     public static class FlowDocumentPagePadding
