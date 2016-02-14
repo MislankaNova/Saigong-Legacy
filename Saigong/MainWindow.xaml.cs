@@ -25,6 +25,7 @@ namespace Saigong
     public partial class MainWindow : Window
     {
         Lang lang;
+        Dictionary<string, string> configs;
 
         delegate int intDelegate();
 
@@ -101,7 +102,16 @@ namespace Saigong
 
         private void Initialise()
         {
-            lang = new Lang("hant"); // Use "hant" (Han traditional) for now. Use loaded prefrence in the future.
+            configs = ConfigLoader.LoadConfigFile("config.txt");
+            if (configs.Keys.Contains("lang"))
+            {
+                lang = new Lang(configs["lang"]);
+            }
+            else
+            {
+                lang = new Lang();
+            }
+            ApplyConfig();
             Directory.CreateDirectory("saves/back/");
             Directory.CreateDirectory("saves/plan/");
             FindInitialise(true);
@@ -113,6 +123,145 @@ namespace Saigong
             messageTextBlocks = new List<TextBlock>();
             AddMessage(lang["startupFinished"]);
             findStart = MainTextArea.Document.ContentStart;
+        }
+
+        // Helper doing what its name says
+        private double PtToPx(double pt)
+        {
+            return (pt * 96) / 72;
+        }
+
+        // Helper function to add default value to config without replacing
+        private void SetConfigDefault(string key, string value)
+        {
+            if (!configs.Keys.Contains(key))
+                configs[key] = value;
+        }
+
+        private void ApplyConfig()
+        {
+            // First make default values
+            SetConfigDefault
+                ("text-family", "Cambria, Times New Roman, STZhongsong, SimSun, serif");
+            SetConfigDefault("normal-text-size", "18"); // In pt
+            SetConfigDefault("meta-text-size", "16"); // In pt
+            SetConfigDefault("title-text-size", "24"); // In pt
+            SetConfigDefault("lesser-title-text-size", "24"); // In pt
+            SetConfigDefault("line-width", "24"); // In Hanzi
+
+            App.Current.Resources["MainTextFamily"] =
+                new FontFamily(configs["main-font-family"]);
+
+            { // Set style for normal text
+                var s =
+                    new Style
+                        (
+                        typeof(Paragraph),
+                        ((Style)App.Current.Resources["NormalText"])
+                        );
+                s.Setters.Add
+                    (
+                    new Setter
+                        (
+                        Paragraph.FontSizeProperty,
+                        PtToPx(Convert.ToDouble(configs["normal-text-size"]))
+                        )
+                    );
+                s.Setters.Add
+                    (
+                    new Setter
+                        (
+                        Paragraph.TextIndentProperty,
+                        PtToPx(Convert.ToDouble(configs["normal-text-size"]) * 2)
+                        )
+                    );
+                App.Current.Resources["NormalText"] = s;
+                MainTextArea.Width =
+                    PtToPx
+                    (
+                    Convert.ToDouble(configs["normal-text-size"])
+                    * Convert.ToInt32(configs["line-width"])
+                    + 2
+                    );
+            }
+
+            { // Set style for meta text
+                var s =
+                    new Style
+                        (
+                        typeof(Paragraph),
+                        ((Style)App.Current.Resources["MetaText"])
+                        );
+                s.Setters.Add
+                    (
+                    new Setter
+                        (
+                        Paragraph.FontSizeProperty,
+                        PtToPx(Convert.ToDouble(configs["meta-text-size"]))
+                        )
+                    );
+                s.Setters.Add
+                    (
+                    new Setter
+                        (
+                        Paragraph.TextIndentProperty,
+                        PtToPx(Convert.ToDouble(configs["meta-text-size"]) * 2)
+                        )
+                    );
+                App.Current.Resources["MetaText"] = s;
+            }
+
+            { // Set style for header one
+                var s =
+                    new Style
+                        (
+                        typeof(Paragraph),
+                        ((Style)App.Current.Resources["TitleText"])
+                        );
+                s.Setters.Add
+                    (
+                    new Setter
+                        (
+                        Paragraph.FontSizeProperty,
+                        PtToPx(Convert.ToDouble(configs["title-text-size"]))
+                        )
+                    );
+                s.Setters.Add
+                    (
+                    new Setter
+                        (
+                        Paragraph.TextIndentProperty,
+                        PtToPx(Convert.ToDouble(configs["normal-text-size"]) * 2)
+                        )
+                    );
+                App.Current.Resources["TitleText"] = s;
+            }
+
+            { // Set style for header two
+                var s =
+                    new Style
+                        (
+                        typeof(Paragraph),
+                        ((Style)App.Current.Resources["LesserTitleText"])
+                        );
+                s.Setters.Add
+                    (
+                    new Setter
+                        (
+                        Paragraph.FontSizeProperty,
+                        PtToPx(Convert.ToDouble(configs["lesser-title-text-size"]))
+                        )
+                    );
+                s.Setters.Add
+                    (
+                    new Setter
+                        (
+                        Paragraph.TextIndentProperty,
+                        PtToPx(Convert.ToDouble(configs["normal-text-size"]) * 2)
+                        )
+                    );
+                App.Current.Resources["LesserTitleText"] = s;
+            }
         }
 
         private void EditStart()
@@ -264,43 +413,76 @@ namespace Saigong
                 return;
             }
 
+            TextPointer original_start = findStart;
+            bool again = false;
+
             BEGIN:
 
             foreach (Block b in MainTextArea.Document.Blocks)
             {
+                if (again && original_start.GetOffsetToPosition(findStart) > 0)
+                { // If reached starting position after searching the whole file
+                    break;
+                } // Break
+                
                 TextRange tr = new TextRange(b.ContentStart, b.ContentEnd);
-                int index = 0;
+                int index = 0; // The index of found text in this block
+
                 if (tr.Start.GetOffsetToPosition(findStart) > 0)
-                {
+                { // If the starting posision is after the start of this block
                     index = tr.Start.GetOffsetToPosition(findStart);
-                }
+                } // Begin from the starting position
+
                 if (index >= tr.Text.Length)
-                {
+                { // If the starting position is after this block
                     goto NEXT;
-                }
-                index = tr.Text.IndexOf(text, index);
+                } // Go to the next block
+
+                index = tr.Text.IndexOf(text, index); // Find the text
+
                 if (index == -1)
-                {
+                { // If not found
                     goto NEXT;
-                }
+                } // Try next block
+
                 if (tr.Start.GetPositionAtOffset(index).GetOffsetToPosition(findStart) <= 0)
-                {
-                    MainTextArea.Focus();
-                    MainTextArea.Selection.Select
+                { // If the found text is after the start position
+                    MainTextArea.Focus(); // Focus the main text area
+                    // For the sake of those fuckin' non-text char's in the textrange
+                    // The index must be computed again
+                    var tps = tr.Start; // Current position in the search TextRange
+                    for
                         (
-                        tr.Start.GetPositionAtOffset(index),
-                        tr.Start.GetPositionAtOffset(index + text.Length)
+                        ; // Iterate through the TextRange to search
+                        tps.GetOffsetToPosition(tr.End) >= text.Length;
+                        tps = tps.GetPositionAtOffset(1)
+                        )
+                    {
+                        var sr = // The TextRange of the characters after the pointer
+                            new TextRange(tps, tps.GetPositionAtOffset(text.Length));
+                        if (sr.Text == text)
+                        { // If match
+                            break;
+                        }
+                    }
+
+                    MainTextArea.Selection.Select // Select the found text
+                        (
+                        tps,
+                        tps.GetPositionAtOffset(text.Length)
                         );
-                    findStart = tr.Start.GetPositionAtOffset(index + 1);
+                    findStart = tps.GetPositionAtOffset(1);
                     AddMessage(lang["found"]);
                     return;
                 }
             NEXT:
                 ;
             }
-            if (findStart != MainTextArea.Document.ContentStart)
+
+            if (findStart != MainTextArea.Document.ContentStart && !again)
             {
                 findStart = MainTextArea.Document.ContentStart;
+                again = true;
                 goto BEGIN;
             }
             AddMessage(lang["notFound"]);

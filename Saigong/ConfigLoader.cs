@@ -24,7 +24,7 @@ namespace Saigong
                 string[] splited = line.Split(':');
                 if (splited.Length == 2)
                 {
-                    result[splited[0]] = splited[1];
+                    result[splited[0].Trim()] = splited[1].Trim();
                 }
             }
             sr.Close();

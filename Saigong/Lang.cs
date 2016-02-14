@@ -19,8 +19,7 @@ namespace Saigong
          * public static string title = "関越文字";
          * 
          */
-
-        public Lang(string name) // Initialise language
+        public Lang(string name="") // Initialise language
         {
             // First initialise the values
             // Default values of the strings will be assigned
@@ -41,6 +40,11 @@ namespace Saigong
             this["chara"] = "字";
             this["shutdown"] = "再見";
 
+            if (name == "")
+            {
+                return;
+            }
+
             Dictionary<string, string> langFile =
                 ConfigLoader.LoadConfigFile("lang/" + name + ".txt");
 
@@ -57,11 +61,14 @@ namespace Saigong
                 }
             }
 
+            return;
+
             // Then the language file should be loaded
             if (! File.Exists("lang/" + name + ".txt"))
             {
                 return;
             }
+
             // Only UTF-8 text can be readed
             StreamReader sr = File.OpenText("lang/" + name + ".txt");
             while (! sr.EndOfStream)
