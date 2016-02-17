@@ -1,0 +1,4 @@
+﻿lang: hant
+main-font-family: Baskerville, MingLiu
+normal-text-size: 18
+title-text-size: 10
