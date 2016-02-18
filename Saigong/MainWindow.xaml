@@ -13,6 +13,8 @@
         Style="{DynamicResource WindowMax}"
         
         AllowsTransparency="True"
+        
+        TextOptions.TextRenderingMode="ClearType"
         >
     <Grid Name="MainGrid"
           
@@ -32,36 +34,34 @@
                    
                    MouseDown="WindowTitle_MouseDown"
                    
-                   Padding="10, 0, 0, 5"
+                   Padding="5, 0, 0, 5"
                    VerticalAlignment="Top"
                    HorizontalAlignment="Stretch"
                    
-                   Background="{DynamicResource HandleBack}"
-                   
-                   FontSize="16pt"
+                   FontSize="36px"
+                   Height="40"
                    FontFamily="{DynamicResource MainTextFamily}"
-                   Foreground="{DynamicResource HandleFore}"
+                   Foreground="{DynamicResource AuxBack}"
                    
                    TextAlignment="Left"
                    
                    Cursor="SizeAll"
                    />
-        <TextBlock Name="WindowClose"
-                   
-                   MouseDown="WindowClose_MouseDown"
-                   
-                   Padding="10, 0, 10, 0"
-                   VerticalAlignment="Top"
-                   HorizontalAlignment="Right"
-                   
-                   FontSize="16pt"
-                   FontFamily="Calibri, Arial, sans-serif"
-                   Foreground="{DynamicResource HandleFore}"
-                   
-                   TextAlignment="Center"
-                   
-                   Cursor="Hand"
-                   />
+        <Button Name="ExitButton"
+                
+                Click="ExitButton_Click"
+                
+                Style="{DynamicResource SystemButtonStyle}"
+                
+                VerticalAlignment="Top"
+                HorizontalAlignment="Right"
+                Width="40" Height="40"
+                
+                Background="{DynamicResource uLan}"
+                
+                Visibility="Hidden"
+                >
+        </Button>
 
         <TextBox Name="TitleTextArea"
                  

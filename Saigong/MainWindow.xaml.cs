@@ -117,7 +117,6 @@ namespace Saigong
             FindInitialise(true);
             TitleTextArea.Focus();
             WindowTitle.Text = lang["title"];
-            WindowClose.Text = "X";
             HideHandle();
             ListenToStyleChanges = false;
             messageTextBlocks = new List<TextBlock>();
@@ -142,7 +141,7 @@ namespace Saigong
         {
             // First make default values
             SetConfigDefault
-                ("text-family", "Cambria, Times New Roman, STZhongsong, SimSun, serif");
+                ("main-font-family", "Cambria, Times New Roman, STZhongsong, SimSun, serif");
             SetConfigDefault("normal-text-size", "18"); // In pt
             SetConfigDefault("meta-text-size", "16"); // In pt
             SetConfigDefault("title-text-size", "24"); // In pt
@@ -275,7 +274,7 @@ namespace Saigong
             if (this.WindowState == WindowState.Normal)
             {
                 WindowTitle.Visibility = Visibility.Visible;
-                WindowClose.Visibility = Visibility.Visible;
+                ExitButton.Visibility = Visibility.Visible;
                 this.ResizeMode = ResizeMode.CanResizeWithGrip;
             }
         }
@@ -283,7 +282,7 @@ namespace Saigong
         private void HideHandle()
         {
             WindowTitle.Visibility = Visibility.Hidden;
-            WindowClose.Visibility = Visibility.Hidden;
+            ExitButton.Visibility = Visibility.Hidden;
             this.ResizeMode = ResizeMode.NoResize;
         }
 
@@ -755,11 +754,6 @@ namespace Saigong
             findStart = MainTextArea.Document.ContentStart;
         }
 
-        private void WindowClose_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            ShutProgram();
-        }
-
         private void MainTextArea_MouseLeave(object sender, MouseEventArgs e)
         {
             ShowHandle();
@@ -789,6 +783,11 @@ namespace Saigong
         private void PlanTextArea_MouseLeave(object sender, MouseEventArgs e)
         {
             ShowHandle();
+        }
+
+        private void ExitButton_Click(object sender, RoutedEventArgs e)
+        {
+            ShutProgram();
         }
     }
 }

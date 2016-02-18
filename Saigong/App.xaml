@@ -9,6 +9,9 @@
     <!-- The default value are in this file. -->
     
     <Application.Resources>
+
+        <SolidColorBrush x:Key="uLan" Color="#FFA00000"/>
+
         <SolidColorBrush x:Key="Hole" Color="#00000000"/>
         <SolidColorBrush x:Key="WholeBack" Color="#FF202020"/>
         <SolidColorBrush x:Key="TitleFore" Color="#FFa0a0a0"/>
@@ -22,6 +25,65 @@
 
         <FontFamily x:Key="MainTextFamily">Cambria, Times New Roman, STZhongsong, SimSun, serif</FontFamily>
         <FontFamily x:Key="AuxTextFamily">Arial, Microsoft YaHei UI, sans-serif</FontFamily>
+        
+        <Style x:Key="SystemButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid
+                              Height="{TemplateBinding Height}"
+                              Width="{TemplateBinding Width}"
+                              Background="{DynamicResource WholeBack}"
+                            >
+                            <Rectangle x:Name="_InnerRect"
+                                Margin="10, 10, 10, 10"
+                                Fill="{TemplateBinding Background}"
+                                />
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal">
+                                        <Storyboard>
+                                            <ThicknessAnimation
+                                                Storyboard.TargetName="_InnerRect"
+                                                Storyboard.TargetProperty="Margin"
+                                                To="10, 10, 10, 10"
+                                                Duration="0:0:0.1"
+                                                />
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="MouseOver">
+                                        <Storyboard>
+                                            <ThicknessAnimation
+                                                Storyboard.TargetName="_InnerRect"
+                                                Storyboard.TargetProperty="Margin"
+                                                To="0, 0, 0, 0"
+                                                Duration="0:0:0.05"
+                                                />
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="Pressed">
+                                        <Storyboard>
+                                            <ThicknessAnimation
+                                                Storyboard.TargetName="_InnerRect"
+                                                Storyboard.TargetProperty="Margin"
+                                                To="5, 5, 5, 5"
+                                                Duration="0:0:0.025"
+                                                />
+                                        </Storyboard>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    
+                </Trigger>
+            </Style.Triggers>
+        </Style>
 
         <Style x:Key="WindowMax" TargetType="{x:Type Window}">
             <Setter Property="ResizeMode" Value="NoResize"/>
