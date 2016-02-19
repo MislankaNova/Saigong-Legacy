@@ -8,6 +8,8 @@ namespace Saigong
 {
     static class ConfigLoader
     {
+        public static string CommentSymbol = "##";
+
         public static Dictionary<string, string> LoadConfigFile(string dir)
         {
             if (! File.Exists(dir))
@@ -21,10 +23,13 @@ namespace Saigong
             while (! sr.EndOfStream)
             {
                 string line = sr.ReadLine();
-                string[] splited = line.Split(':');
-                if (splited.Length == 2)
+                if (!line.StartsWith(CommentSymbol))
                 {
-                    result[splited[0].Trim()] = splited[1].Trim();
+                    string[] splited = line.Split(':');
+                    if (splited.Length == 2)
+                    {
+                        result[splited[0].Trim()] = splited[1].Trim();
+                    }
                 }
             }
             sr.Close();
