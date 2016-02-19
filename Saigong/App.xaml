@@ -23,7 +23,7 @@
         <SolidColorBrush x:Key="HandleFore" Color="#FFF0F0F0"/>
         <SolidColorBrush x:Key="Selection" Color="#FFE0E0E0"/>
 
-        <FontFamily x:Key="MainTextFamily">Cambria, Times New Roman, STZhongsong, SimSun, serif</FontFamily>
+        <FontFamily x:Key="MainTextFamily">Baskerville, Georgia, STSong, SimSun, serif</FontFamily>
         <FontFamily x:Key="AuxTextFamily">Arial, Microsoft YaHei UI, sans-serif</FontFamily>
         
         <Style x:Key="SystemButtonStyle" TargetType="{x:Type Button}">

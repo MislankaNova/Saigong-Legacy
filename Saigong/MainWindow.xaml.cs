@@ -22,6 +22,11 @@ namespace Saigong
         NormalText, TitleTile, LesserTitleText, MetaText
     }
 
+    public enum EditMode
+    {
+        Main, Plan
+    }
+
     public partial class MainWindow : Window
     {
         Lang lang;
@@ -34,6 +39,8 @@ namespace Saigong
         static string planLocation = "saves/plan/";
 
         bool ListenToStyleChanges;
+        bool Searching;
+        EditMode currentMode;
 
         TextPointer findStart;
 
@@ -78,22 +85,6 @@ namespace Saigong
             }
         }
 
-        TextRange mainTextRange
-        {
-            get
-            {
-                return new TextRange
-                    (
-                    MainTextArea.Document.ContentStart,
-                    MainTextArea.Document.ContentEnd
-                    );
-            }
-            set
-            {
-                ;
-            }
-        }
-
         public MainWindow()
         {
             InitializeComponent();
@@ -114,14 +105,15 @@ namespace Saigong
             ApplyConfig();
             Directory.CreateDirectory("saves/back/");
             Directory.CreateDirectory("saves/plan/");
-            FindInitialise(true);
             TitleTextArea.Focus();
             WindowTitle.Text = lang["title"];
             HideHandle();
             ListenToStyleChanges = false;
+            Searching = false;
             messageTextBlocks = new List<TextBlock>();
             AddMessage(lang["startupFinished"]);
             findStart = MainTextArea.Document.ContentStart;
+            currentMode = EditMode.Main;
         }
 
         // Helper doing what its name says
@@ -141,12 +133,13 @@ namespace Saigong
         {
             // First make default values
             SetConfigDefault
-                ("main-font-family", "Cambria, Times New Roman, STZhongsong, SimSun, serif");
+                ("main-font-family", "Baskerville, Georgia, STSong, SimSun, serif");
             SetConfigDefault("normal-text-size", "18"); // In pt
             SetConfigDefault("meta-text-size", "16"); // In pt
             SetConfigDefault("title-text-size", "24"); // In pt
             SetConfigDefault("lesser-title-text-size", "24"); // In pt
             SetConfigDefault("line-width", "24"); // In Hanzi
+            SetConfigDefault("text-rendering-mode", "Aliased"); // Hack
 
             App.Current.Resources["MainTextFamily"] =
                 new FontFamily(configs["main-font-family"]);
@@ -260,6 +253,20 @@ namespace Saigong
                         )
                     );
                 App.Current.Resources["LesserTitleText"] = s;
+            }
+
+            // Set text rendering mode
+            switch (configs["text-rendering-mode"])
+            {
+                case "Auto":
+                    TextOptions.SetTextRenderingMode(this, TextRenderingMode.Auto);
+                    break;
+                case "ClearType":
+                    TextOptions.SetTextRenderingMode(this, TextRenderingMode.ClearType);
+                    break;
+                case "GrayScale":
+                    TextOptions.SetTextRenderingMode(this, TextRenderingMode.Grayscale);
+                    break;
             }
         }
 
@@ -386,13 +393,27 @@ namespace Saigong
             }
         }
 
-        private void FindInitialise(bool startup)
+        private void FindInitialise()
         {
-            if (!startup)
-            {
-                OperationTextArea.Visibility = Visibility.Visible;
-            }
+            mainCaretPosition = MainTextArea.CaretPosition;
+            findStart = MainTextArea.CaretPosition;
+            OperationTextArea.Visibility = Visibility.Visible;
             OperationTextArea.Text = "";
+        }
+
+        private void FindEnd()
+        {
+            OperationTextArea.Visibility = System.Windows.Visibility.Hidden;
+            switch (currentMode)
+            {
+                case EditMode.Main:
+                    MainTextArea.Focus();
+                    MainTextArea.CaretPosition = mainCaretPosition;
+                    break;
+                case EditMode.Plan:
+                    PlanTextArea.Focus();
+                    break;
+            }
         }
 
         private void FindText()
@@ -401,7 +422,7 @@ namespace Saigong
 
             if (OperationTextArea.Visibility == Visibility.Hidden)
             {
-                FindInitialise(false);
+                FindInitialise();
                 Keyboard.Focus(OperationTextArea);
                 return;
             }
@@ -412,87 +433,63 @@ namespace Saigong
                 return;
             }
 
-            TextPointer original_start = findStart;
-            bool again = false;
+            // First check if the text really exist
+            {
+                var tr =
+                    new TextRange(MainTextArea.Document.ContentStart, MainTextArea.Document.ContentEnd);
+                if (tr.Text.IndexOf(text) == -1)
+                {
+                    AddMessage(lang["notFound"]);
+                    return;
+                }
+            }
 
             BEGIN:
 
-            foreach (Block b in MainTextArea.Document.Blocks)
             {
-                if (again && original_start.GetOffsetToPosition(findStart) > 0)
-                { // If reached starting position after searching the whole file
-                    break;
-                } // Break
-                
-                TextRange tr = new TextRange(b.ContentStart, b.ContentEnd);
-                int index = 0; // The index of found text in this block
-
-                if (tr.Start.GetOffsetToPosition(findStart) > 0)
-                { // If the starting posision is after the start of this block
-                    index = tr.Start.GetOffsetToPosition(findStart);
-                } // Begin from the starting position
-
-                if (index >= tr.Text.Length)
-                { // If the starting position is after this block
-                    goto NEXT;
-                } // Go to the next block
-
-                index = tr.Text.IndexOf(text, index); // Find the text
-
-                if (index == -1)
-                { // If not found
-                    goto NEXT;
-                } // Try next block
-
-                if (tr.Start.GetPositionAtOffset(index).GetOffsetToPosition(findStart) <= 0)
-                { // If the found text is after the start position
-                    MainTextArea.Focus(); // Focus the main text area
-                    // For the sake of those fuckin' non-text char's in the textrange
-                    // The index must be computed again
-                    var tps = tr.Start; // Current position in the search TextRange
-                    for
-                        (
-                        ; // Iterate through the TextRange to search
-                        tps.GetOffsetToPosition(tr.End) >= text.Length;
-                        tps = tps.GetPositionAtOffset(1)
-                        )
+                var tr =
+                    new TextRange(findStart, MainTextArea.Document.ContentEnd);
+                for
+                    (
+                    var tp = tr.Start;
+                    tp.GetOffsetToPosition(tr.End) > text.Length;
+                    tp = tp.GetPositionAtOffset(1)
+                    )
+                {
+                    var sr =
+                        new TextRange(tp, tp.GetPositionAtOffset(text.Length));
+                    if (sr.Text == text) // Found
                     {
-                        var sr = // The TextRange of the characters after the pointer
-                            new TextRange(tps, tps.GetPositionAtOffset(text.Length));
-                        if (sr.Text == text)
-                        { // If match
-                            break;
-                        }
+                        Searching = true;
+                        findStart = tp.GetPositionAtOffset(1);
+                        MainTextArea.Focus();
+                        MainTextArea.Selection.Select
+                            (tp, tp.GetPositionAtOffset(text.Length));
+                        AddMessage(lang["found"]);
+                        Searching = false;
+                        return;
                     }
-
-                    MainTextArea.Selection.Select // Select the found text
-                        (
-                        tps,
-                        tps.GetPositionAtOffset(text.Length)
-                        );
-                    findStart = tps.GetPositionAtOffset(1);
-                    AddMessage(lang["found"]);
-                    return;
                 }
-            NEXT:
-                ;
             }
 
-            if (findStart != MainTextArea.Document.ContentStart && !again)
+            // This part is reached if not found
+            if (findStart != MainTextArea.Document.ContentStart)
             {
                 findStart = MainTextArea.Document.ContentStart;
-                again = true;
                 goto BEGIN;
             }
-            AddMessage(lang["notFound"]);
         }
 
         private void CharCount()
         {
-            AddMessage
-                (
-                (mainTextRange.Text.Length - blockCount).ToString() + lang["chara"]
-                );
+            int count = 0;
+            foreach (var b in MainTextArea.Document.Blocks)
+            {
+                var tr =
+                    new TextRange(b.ContentStart, b.ContentEnd);
+                count += tr.Text.Length;
+            }
+            AddMessage(count.ToString() + lang["chara"]);
         }
 
         private void SaveFile(bool back = false)
@@ -677,6 +674,7 @@ namespace Saigong
                 PlanTextArea.Visibility = Visibility.Visible;
                 PlanTextArea.Focus();
                 PlanTextArea.CaretPosition = planCaretPosition;
+                currentMode = EditMode.Plan;
             }
             else
             {
@@ -685,6 +683,7 @@ namespace Saigong
                 MainTextArea.Visibility = Visibility.Visible;
                 MainTextArea.Focus();
                 MainTextArea.CaretPosition = mainCaretPosition;
+                currentMode = EditMode.Main;
             }
         }
 
@@ -705,6 +704,10 @@ namespace Saigong
             if (ListenToStyleChanges)
             {
                 ApplyStyle(e);
+            }
+            if (e.Key == Key.Escape) // Stop searching
+            {
+                FindEnd();
             }
             if (Keyboard.IsKeyDown(Key.LeftCtrl))
             {
@@ -731,32 +734,15 @@ namespace Saigong
                 {
                     case Key.LeftAlt: ListenToStyleChanges = true; break;
                     case Key.Q: ShutProgram(); break;
-                    case Key.M: CharCount(); break;
-                    case Key.F: FindText(); break;
+                    case Key.M: if (currentMode == EditMode.Main) CharCount(); break;
+                    case Key.F: if (currentMode == EditMode.Main) FindText(); break;
                     case Key.W: ChangeWindowState(); break;
                     case Key.N: ShowTime(); break;
                     case Key.LWin: this.WindowState = WindowState.Minimized; break;
-                    case Key.Tab: TogglePlan(); break;
+                    case Key.Tab: if (!OperationTextArea.IsVisible) TogglePlan(); break;
                 }
                 e.Handled = true;
-                //IsolateElements(true);
             }
-        }
-        
-        private void MainTextArea_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            EditStart();
-            findStart = MainTextArea.Document.ContentStart;
-        }
-
-        private void OperationTextArea_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            findStart = MainTextArea.Document.ContentStart;
-        }
-
-        private void MainTextArea_MouseLeave(object sender, MouseEventArgs e)
-        {
-            ShowHandle();
         }
 
         private void WindowTitle_MouseDown(object sender, MouseButtonEventArgs e)
@@ -780,14 +766,23 @@ namespace Saigong
             }
         }
 
-        private void PlanTextArea_MouseLeave(object sender, MouseEventArgs e)
-        {
-            ShowHandle();
-        }
-
         private void ExitButton_Click(object sender, RoutedEventArgs e)
         {
             ShutProgram();
+        }
+
+        private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = false;
+            e.Handled = true;
+        }
+
+        private void MainTextArea_SelectionChanged(object sender, RoutedEventArgs e)
+        {
+            if (!Searching)
+            {
+                mainCaretPosition = MainTextArea.CaretPosition;
+            }
         }
     }
 }

@@ -14,7 +14,7 @@
         
         AllowsTransparency="True"
         
-        TextOptions.TextRenderingMode="ClearType"
+        TextOptions.TextRenderingMode="Aliased"
         >
     <Grid Name="MainGrid"
           
@@ -81,8 +81,6 @@
                  />
         <TextBox Name="OperationTextArea"
                  
-                 TextChanged="OperationTextArea_TextChanged"
-                 
                  MinWidth="80"
                  MaxWidth="200"
                  Padding="10, 10, 10, 10"
@@ -103,8 +101,7 @@
                  />
         <RichTextBox Name="MainTextArea"
                      
-                     TextChanged="MainTextArea_TextChanged"
-                     MouseLeave="MainTextArea_MouseLeave"
+                     SelectionChanged="MainTextArea_SelectionChanged"
                      
                      Width="434pt"
                      Margin="0, 160, 0, 120"
@@ -124,11 +121,28 @@
                      SelectionBrush="{DynamicResource Selection}"
                      >
             <FlowDocument local:FlowDocumentPagePadding.PagePadding="0.25, 0, 0.25, 0"/>
+            <RichTextBox.CommandBindings>
+                <CommandBinding Command="EditingCommands.ToggleUnderline" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.ToggleSuperscript" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.ToggleSubscript" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.ToggleNumbering" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.ToggleItalic" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.ToggleInsert" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.ToggleBullets" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.ToggleBold" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.IncreaseIndentation" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.DecreaseIndentation" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.IncreaseFontSize" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.DecreaseFontSize" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.EnterLineBreak" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.EnterParagraphBreak" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.AlignCenter" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.AlignLeft" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.AlignRight" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.AlignJustify" CanExecute="CommandBinding_CanExecute"/>
+            </RichTextBox.CommandBindings>
         </RichTextBox>
         <RichTextBox Name="PlanTextArea"
-                     
-                     TextChanged="MainTextArea_TextChanged"
-                     MouseLeave="PlanTextArea_MouseLeave"
                      
                      Width="480"
                      Margin="0, 160, 0, 120"
@@ -148,6 +162,27 @@
                      Visibility="Hidden"
                      
                      SelectionBrush="{DynamicResource Selection}"
-                     />
+                     >
+            <RichTextBox.CommandBindings>
+                <CommandBinding Command="EditingCommands.ToggleUnderline" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.ToggleSuperscript" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.ToggleSubscript" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.ToggleNumbering" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.ToggleItalic" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.ToggleInsert" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.ToggleBullets" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.ToggleBold" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.IncreaseIndentation" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.DecreaseIndentation" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.IncreaseFontSize" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.DecreaseFontSize" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.EnterLineBreak" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.EnterParagraphBreak" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.AlignCenter" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.AlignLeft" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.AlignRight" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.AlignJustify" CanExecute="CommandBinding_CanExecute"/>
+            </RichTextBox.CommandBindings>
+        </RichTextBox>
     </Grid>
 </Window>
