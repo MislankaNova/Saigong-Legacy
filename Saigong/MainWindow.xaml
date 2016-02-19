@@ -6,24 +6,26 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         
-        xmlns:main="clr-namespace:Saigong"
+        xmlns:local="clr-namespace:Saigong"
         
         Title="Saigong"
         
-        Style="{StaticResource WindowMax}"
+        Style="{DynamicResource WindowMax}"
         
         AllowsTransparency="True"
+        
+        TextOptions.TextRenderingMode="Aliased"
         >
     <Grid Name="MainGrid"
           
-          Background="{StaticResource WholeBack}"
+          Background="{DynamicResource WholeBack}"
           >
         <Grid Name="MessageContainerGrid"/>
         <Rectangle Name="WindowBorder"
                    
                    Panel.ZIndex="2"
                    
-                   Stroke="{StaticResource HandleBack}"
+                   Stroke="{DynamicResource HandleBack}"
                    StrokeThickness="1"
                    
                    Visibility="Hidden"
@@ -32,36 +34,34 @@
                    
                    MouseDown="WindowTitle_MouseDown"
                    
-                   Padding="10, 0, 0, 5"
+                   Padding="5, 0, 0, 5"
                    VerticalAlignment="Top"
                    HorizontalAlignment="Stretch"
                    
-                   Background="{StaticResource HandleBack}"
-                   
-                   FontSize="16pt"
-                   FontFamily="Cambria, Times New Roman, STZhongsong, SimSun"
-                   Foreground="{StaticResource HandleFore}"
+                   FontSize="36px"
+                   Height="40"
+                   FontFamily="{DynamicResource MainTextFamily}"
+                   Foreground="{DynamicResource AuxBack}"
                    
                    TextAlignment="Left"
                    
                    Cursor="SizeAll"
                    />
-        <TextBlock Name="WindowClose"
-                   
-                   MouseDown="WindowClose_MouseDown"
-                   
-                   Padding="10, 0, 10, 0"
-                   VerticalAlignment="Top"
-                   HorizontalAlignment="Right"
-                   
-                   FontSize="16pt"
-                   FontFamily="Calibri, Arial, sans-serif"
-                   Foreground="{StaticResource HandleFore}"
-                   
-                   TextAlignment="Center"
-                   
-                   Cursor="Hand"
-                   />
+        <Button Name="ExitButton"
+                
+                Click="ExitButton_Click"
+                
+                Style="{DynamicResource SystemButtonStyle}"
+                
+                VerticalAlignment="Top"
+                HorizontalAlignment="Right"
+                Width="40" Height="40"
+                
+                Background="{DynamicResource uLan}"
+                
+                Visibility="Hidden"
+                >
+        </Button>
 
         <TextBox Name="TitleTextArea"
                  
@@ -72,16 +72,14 @@
                  
                  Padding="-100,0,0,0"
                  
-                 Background="{StaticResource Hole}"
+                 Background="{DynamicResource Hole}"
                  BorderThickness="0"
                  
                  FontSize="30pt"
-                 FontFamily="Cambria, Times New Roman, STZhongsong, SimSun"
-                 Foreground="{StaticResource TitleFore}"
+                 FontFamily="{DynamicResource MainTextFamily}"
+                 Foreground="{DynamicResource TitleFore}"
                  />
         <TextBox Name="OperationTextArea"
-                 
-                 TextChanged="OperationTextArea_TextChanged"
                  
                  MinWidth="80"
                  MaxWidth="200"
@@ -90,12 +88,12 @@
                  VerticalAlignment="Top"
                  HorizontalAlignment="Right"
                  
-                 Background="{StaticResource AuxBack}"
+                 Background="{DynamicResource AuxBack}"
                  BorderThickness="0"
                  
                  FontSize="14pt"
-                 FontFamily="Arial, Microsoft YaHei UI"
-                 Foreground="{StaticResource AuxFore}"
+                 FontFamily="{DynamicResource AuxTextFamily}"
+                 Foreground="{DynamicResource AuxFore}"
                    
                  TextAlignment="Center"
                  
@@ -103,64 +101,88 @@
                  />
         <RichTextBox Name="MainTextArea"
                      
-                     TextChanged="MainTextArea_TextChanged"
-                     MouseLeave="MainTextArea_MouseLeave"
+                     SelectionChanged="MainTextArea_SelectionChanged"
                      
-                     Width="580"
+                     Width="434pt"
                      Margin="0, 160, 0, 120"
                      VerticalAlignment="Top"
                      HorizontalAlignment="Center"
                  
-                     Background="{StaticResource Hole}"
+                     Background="{DynamicResource Hole}"
                      BorderThickness="0"
                  
                      AcceptsReturn="True"
                      VerticalScrollBarVisibility="Hidden"
                  
                      FontSize="18pt"
-                     FontFamily="Cambria, Times New Roman, STZhongsong, SimSun"
-                     Foreground="{StaticResource MainFore}"
+                     FontFamily="{DynamicResource MainTextFamily}"
+                     Foreground="{DynamicResource MainFore}"
                      
-                     SelectionBrush="{StaticResource Selection}"
-                     />
+                     SelectionBrush="{DynamicResource Selection}"
+                     >
+            <FlowDocument local:FlowDocumentPagePadding.PagePadding="0.25, 0, 0.25, 0"/>
+            <RichTextBox.CommandBindings>
+                <CommandBinding Command="EditingCommands.ToggleUnderline" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.ToggleSuperscript" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.ToggleSubscript" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.ToggleNumbering" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.ToggleItalic" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.ToggleInsert" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.ToggleBullets" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.ToggleBold" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.IncreaseIndentation" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.DecreaseIndentation" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.IncreaseFontSize" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.DecreaseFontSize" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.EnterLineBreak" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.EnterParagraphBreak" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.AlignCenter" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.AlignLeft" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.AlignRight" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.AlignJustify" CanExecute="CommandBinding_CanExecute"/>
+            </RichTextBox.CommandBindings>
+        </RichTextBox>
         <RichTextBox Name="PlanTextArea"
-                     
-                     TextChanged="MainTextArea_TextChanged"
-                     MouseLeave="PlanTextArea_MouseLeave"
                      
                      Width="480"
                      Margin="0, 160, 0, 120"
                      VerticalAlignment="Top"
                      HorizontalAlignment="Center"
                  
-                     Background="{StaticResource Hole}"
+                     Background="{DynamicResource Hole}"
                      BorderThickness="0"
                  
                      AcceptsReturn="True"
                      VerticalScrollBarVisibility="Hidden"
                  
                      FontSize="18pt"
-                     FontFamily="Cambria, Times New Roman, STZhongsong, SimSun"
-                     Foreground="{StaticResource MainForeLesser}"
+                     FontFamily="{DynamicResource MainTextFamily}"
+                     Foreground="{DynamicResource MainForeLesser}"
                      
                      Visibility="Hidden"
                      
-                     SelectionBrush="{StaticResource Selection}"
-                     />
-        <!--TextBlock Name="StatusDisplay"
-                   MinWidth="80"
-                   Padding="10, 10, 10, 10"
-                   Margin="0, 0, 20, 20"
-                   VerticalAlignment="Bottom"
-                   HorizontalAlignment="Right"
-               
-                   Background="{StaticResource AuxBack}"        
-               
-                   FontSize="14pt"
-                   FontFamily="Arial, Microsoft YaHei UI"
-                   Foreground="{StaticResource AuxFore}"
-                   
-                   TextAlignment="Center"
-               /-->
+                     SelectionBrush="{DynamicResource Selection}"
+                     >
+            <RichTextBox.CommandBindings>
+                <CommandBinding Command="EditingCommands.ToggleUnderline" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.ToggleSuperscript" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.ToggleSubscript" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.ToggleNumbering" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.ToggleItalic" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.ToggleInsert" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.ToggleBullets" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.ToggleBold" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.IncreaseIndentation" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.DecreaseIndentation" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.IncreaseFontSize" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.DecreaseFontSize" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.EnterLineBreak" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.EnterParagraphBreak" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.AlignCenter" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.AlignLeft" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.AlignRight" CanExecute="CommandBinding_CanExecute"/>
+                <CommandBinding Command="EditingCommands.AlignJustify" CanExecute="CommandBinding_CanExecute"/>
+            </RichTextBox.CommandBindings>
+        </RichTextBox>
     </Grid>
 </Window>

@@ -1,0 +1,12 @@
+﻿## This file shows the possible config values for Saigong
+## And their default values
+## This is a commented line, and the following line is not.
+lang: hant
+
+## main-font-family: Baskerville, Georgia, STSong, SimSun, serif
+## normal-text-size: 18
+## meta-text-size: 16
+## title-text-size: 24
+## lesser-title-text-size: 24
+## line-width: 24
+## text-rendering-mode: Aliased
