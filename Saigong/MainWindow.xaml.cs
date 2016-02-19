@@ -110,6 +110,7 @@ namespace Saigong
             HideHandle();
             ListenToStyleChanges = false;
             Searching = false;
+            mainCaretPosition = MainTextArea.Document.ContentStart;
             messageTextBlocks = new List<TextBlock>();
             AddMessage(lang["startupFinished"]);
             findStart = MainTextArea.Document.ContentStart;
