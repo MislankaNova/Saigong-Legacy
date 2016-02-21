@@ -46,7 +46,7 @@ namespace Saigong
             }
 
             Dictionary<string, string> langFile =
-                ConfigLoader.LoadConfigFile("lang/" + name + ".txt");
+                ConfigLoader.LoadConfigFile("Saigong/lang/" + name + ".txt");
 
             if (langFile == null)
             {
@@ -70,7 +70,7 @@ namespace Saigong
             }
 
             // Only UTF-8 text can be readed
-            StreamReader sr = File.OpenText("lang/" + name + ".txt");
+            StreamReader sr = File.OpenText("Saigong/lang/" + name + ".txt");
             while (! sr.EndOfStream)
             {
                 string line = sr.ReadLine();

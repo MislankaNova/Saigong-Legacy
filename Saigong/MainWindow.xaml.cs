@@ -102,7 +102,7 @@ namespace Saigong
 
         private void Initialise()
         {
-            configs = ConfigLoader.LoadConfigFile("config.txt");
+            configs = ConfigLoader.LoadConfigFile("Saigong/config.txt");
             if (configs.Keys.Contains("lang"))
             {
                 lang = new Lang(configs["lang"]);
