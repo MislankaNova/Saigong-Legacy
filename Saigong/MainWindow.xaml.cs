@@ -15,6 +15,10 @@ using System.Timers; // Sakuya! Sakuya! Pad-chou de ite dareda
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 
+// Just started using power mode to write my code
+// I am no programmer
+// I am the magician of digital age
+
 namespace Saigong
 {
     public enum StyleName
@@ -34,13 +38,18 @@ namespace Saigong
 
         delegate int intDelegate();
 
-        static string saveLocation = "saves/";
-        static string backLocation = "saves/back/";
-        static string planLocation = "saves/plan/";
+        const string saveFormat = ".txt";
+        const string saveLocation = "saves/";
+        const string backLocation = "saves/back/";
+        const string planLocation = "saves/plan/";
+
+        const string dateFormat = "yyyy-M-d";
+        const string datetimeFormat = "yyyy-M-d HHmm";
 
         bool ListenToStyleChanges;
         bool Searching;
         EditMode currentMode;
+        string nameWhenLoad;
 
         TextPointer findStart;
 
@@ -115,6 +124,7 @@ namespace Saigong
             AddMessage(lang["startupFinished"]);
             findStart = MainTextArea.Document.ContentStart;
             currentMode = EditMode.Main;
+            nameWhenLoad = null;
         }
 
         // Helper doing what its name says
@@ -294,22 +304,60 @@ namespace Saigong
             this.ResizeMode = ResizeMode.NoResize;
         }
 
-        private void SaveText(string location, bool back)
+        private void SaveFile()
+        {
+            SaveText
+                (
+                saveLocation + TitleTextArea.Text + saveFormat,
+                MainTextArea
+                );
+            AddMessage(lang["saved"]);
+            SaveText
+                (
+                planLocation + TitleTextArea.Text + saveFormat,
+                PlanTextArea
+                );
+            AddMessage(lang["planSaved"]);
+        }
+        
+        private void Backup(bool manual)
+        {
+            var dir =
+                string.Format
+                (
+                "{0}{1} {2}{3}",
+                backLocation,
+                TitleTextArea.Text,
+
+                manual?
+                DateTime.Now.ToString(datetimeFormat)
+                :
+                DateTime.Now.ToString(dateFormat)
+                ,
+                saveFormat
+                );
+            if (!File.Exists(dir))
+            {
+                SaveText
+                    (
+                    dir,
+                    MainTextArea
+                    );
+                if (manual) AddMessage(lang["backupDone"]);
+                else AddMessage(lang["autoBackupDone"]);
+            }
+        }
+
+        private void SaveText(string dir, RichTextBox from)
         {
             IEnumerator<Block> blocks;
             Block b;
+
             string text = "";
-            if (back)
-            {
-                location = backLocation + location + ".txt";
-            }
-            else
-            {
-                location = saveLocation + location + ".txt";
-            }
+
             //FormatExisting();
-            blocks = MainTextArea.Document.Blocks.GetEnumerator();
-            for (int i = 0; i < MainTextArea.Document.Blocks.Count; i++)
+            blocks = from.Document.Blocks.GetEnumerator();
+            for (int i = 0; i < from.Document.Blocks.Count; i++)
             {
                 blocks.MoveNext();
                 b = blocks.Current;
@@ -324,13 +372,13 @@ namespace Saigong
                 text += new TextRange(b.ContentStart, b.ContentEnd).Text;
                 text += "\r\n";
             }
-            File.WriteAllText(location, text, Encoding.UTF8);
+            File.WriteAllText(dir, text, Encoding.UTF8);
         }
 
         private bool LoadText(string location)
         {
             FileStream fs;
-            location = saveLocation + location + ".txt";
+            location = saveLocation + location + saveFormat;
             if (File.Exists(location))
             {
                 fs = new FileStream
@@ -493,29 +541,13 @@ namespace Saigong
             AddMessage(count.ToString() + lang["chara"]);
         }
 
-        private void SaveFile(bool back = false)
-        {
-            if (back)
-            {
-                SaveText(
-                    TitleTextArea.Text + " " + DateTime.Now.Date.ToShortDateString().Replace("/", "-"),
-                    back
-                    );
-            }
-            else
-            {
-                SaveText(TitleTextArea.Text, back);
-                SavePlan(TitleTextArea.Text);
-            }
-            AddMessage(lang["saved"]);
-        }
-
         private void LoadFile()
         {
             if (LoadText(TitleTextArea.Text))
             {
                 AddMessage(lang["loaded"]);
-                BackupCurrent();
+                nameWhenLoad = TitleTextArea.Text;
+                Backup(false);
             }
             else
             {
@@ -524,7 +556,6 @@ namespace Saigong
             if (LoadPlan(TitleTextArea.Text))
             {
                 AddMessage(lang["planLoaded"]);
-                BackupCurrent();
             }
             else
             {
@@ -541,17 +572,6 @@ namespace Saigong
         private void ShowTime()
         {
             AddMessage(DateTime.Now.TimeOfDay.ToString(@"hh\:mm"));
-        }
-
-        private void BackupCurrent()
-        {
-            if (!File.Exists
-                (string.Format("saves/back/{0} {1}.txt", TitleTextArea.Text, DateTime.Now.Date.ToShortDateString().Replace("/", "-"))
-                ))
-            {
-                SaveFile(true);
-                AddMessage(lang["autoBackupDone"]);
-            }
         }
 
         private void ChangeParagraphStyle(Paragraph p, string key)
@@ -623,7 +643,7 @@ namespace Saigong
         {
             IEnumerator<Block> paras = PlanTextArea.Document.Blocks.GetEnumerator();
             string toSave = "";
-            location = planLocation + location + ".txt";
+            location = planLocation + location + saveFormat;
             for (int i = 0; i < PlanTextArea.Document.Blocks.Count; i++)
             {
                 paras.MoveNext();
@@ -636,7 +656,7 @@ namespace Saigong
         private bool LoadPlan(string location)
         {
             FileStream fs;
-            location = planLocation + location + ".txt";
+            location = planLocation + location + saveFormat;
             if (File.Exists(location))
             {
                 fs = new FileStream
@@ -739,6 +759,7 @@ namespace Saigong
                     case Key.F: if (currentMode == EditMode.Main) FindText(); break;
                     case Key.W: ChangeWindowState(); break;
                     case Key.N: ShowTime(); break;
+                    case Key.P: Backup(true); break;
                     case Key.LWin: this.WindowState = WindowState.Minimized; break;
                     case Key.Tab: if (!OperationTextArea.IsVisible) TogglePlan(); break;
                 }
