@@ -1,0 +1,8 @@
+﻿name: MetaText
+key: D9
+symbol: *
+indent:
+
+FontSize: 16
+Foreground: #606060
+TextAlignment: Left

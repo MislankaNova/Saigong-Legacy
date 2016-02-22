@@ -1,0 +1,7 @@
+﻿name: TitleText
+key: D1
+symbol: #
+
+FontSize: 24
+Foreground: #A0A0A0
+TextAlignment: Center

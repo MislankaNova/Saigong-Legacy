@@ -97,31 +97,8 @@
             <Setter Property="MinHeight" Value="480px"/>
             <Setter Property="MinWidth" Value="640px"/>
         </Style>
-        <Style x:Key="TitleText" TargetType="Block">
-            <!--<Setter Property="FontSize" Value="24pt"/>-->
-            <Setter Property="TextAlignment" Value="Center"/>
+        <Style x:Key="ParagraphBase" TargetType="Paragraph">
             <Setter Property="FontFamily" Value="{DynamicResource MainTextFamily}"/>
-            <Setter Property="Foreground" Value="{DynamicResource TitleFore}"/>
-        </Style>
-        <Style x:Key="LesserTitleText" TargetType="Block">
-            <!--<Setter Property="FontSize" Value="24pt"/>-->
-            <Setter Property="TextAlignment" Value="Left"/>
-            <Setter Property="FontFamily" Value="{DynamicResource MainTextFamily}"/>
-            <Setter Property="Foreground" Value="{DynamicResource TitleFore}"/>
-        </Style>
-        <Style x:Key="MetaText" TargetType="Paragraph">
-            <!--<Setter Property="FontSize" Value="16pt"/>-->
-            <!--<Setter Property="TextIndent" Value="32pt"/>-->
-            <Setter Property="TextAlignment" Value="Left"/>
-            <Setter Property="FontFamily" Value="{DynamicResource MainTextFamily}"/>
-            <Setter Property="Foreground" Value="{DynamicResource MainForeLesser}"/>
-        </Style>
-        <Style x:Key="NormalText" TargetType="Paragraph">
-            <!--<Setter Property="FontSize" Value="18pt"/>-->
-            <!--<Setter Property="TextIndent" Value="36pt"/>-->
-            <Setter Property="TextAlignment" Value="Left"/>
-            <Setter Property="FontFamily" Value="{DynamicResource MainTextFamily}"/>
-            <Setter Property="Foreground" Value="{DynamicResource MainFore}"/>
         </Style>
         
         <Style x:Key="MessageTextBlock" TargetType="TextBlock">

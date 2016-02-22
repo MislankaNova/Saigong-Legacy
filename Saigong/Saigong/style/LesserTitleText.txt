@@ -1,0 +1,8 @@
+﻿name: LesserTitleText
+key: D2
+symbol: ##
+type: Block
+
+FontSize: 24
+Foreground: #A0A0A0
+TextAlignment: Left

@@ -35,6 +35,7 @@ namespace Saigong
     {
         Lang lang;
         Dictionary<string, string> configs;
+        TextClasses textClasses;
 
         delegate int intDelegate();
 
@@ -58,42 +59,6 @@ namespace Saigong
 
         List<TextBlock> messageTextBlocks;
 
-        static string[] StyleName = new string[4]
-        {
-            "LesserTitleText",
-            "TitleText",
-            "MetaText",
-            "NormalText"
-        };
-
-        static string[] StyleSymbol = new string[4] 
-        {
-            "##",
-            "#",
-            "*",
-            ""
-        };
-
-        static Key[] StyleKey = new Key[4]
-        {
-            Key.D2,
-            Key.D1,
-            Key.D3,
-            Key.D0
-        };
-
-        int blockCount
-        {
-            get
-            {
-                return MainTextArea.Document.Blocks.Count;
-            }
-            set
-            {
-                ;
-            }
-        }
-
         public MainWindow()
         {
             InitializeComponent();
@@ -102,6 +67,7 @@ namespace Saigong
 
         private void Initialise()
         {
+            textClasses = new TextClasses();
             configs = ConfigLoader.LoadConfigFile("Saigong/config.txt");
             if (configs.Keys.Contains("lang"))
             {
@@ -125,6 +91,13 @@ namespace Saigong
             findStart = MainTextArea.Document.ContentStart;
             currentMode = EditMode.Main;
             nameWhenLoad = null;
+
+            MainTextArea.Document.Blocks.Add
+                (
+                new Paragraph()
+                );
+            MainTextArea.Document.Blocks.FirstBlock.Style
+                = textClasses.GetTextClassStyleByName("NormalText").DisplayStyle;
         }
 
         // Helper doing what its name says
@@ -145,140 +118,27 @@ namespace Saigong
             // First make default values
             SetConfigDefault
                 ("main-font-family", "Baskerville, Georgia, STSong, SimSun, serif");
-            SetConfigDefault("normal-text-size", "18"); // In pt
-            SetConfigDefault("meta-text-size", "16"); // In pt
-            SetConfigDefault("title-text-size", "24"); // In pt
-            SetConfigDefault("lesser-title-text-size", "24"); // In pt
             SetConfigDefault("line-width", "24"); // In Hanzi
             SetConfigDefault("text-rendering-mode", "Aliased"); // Hack
+
+            MainTextArea.Width =
+                PtToPx
+                (
+                textClasses.NormalTextWidth
+                * Convert.ToInt32(configs["line-width"])
+                + 2
+                );
 
             App.Current.Resources["MainTextFamily"] =
                 new FontFamily(configs["main-font-family"]);
 
-            { // Set style for normal text
-                var s =
-                    new Style
-                        (
-                        typeof(Paragraph),
-                        ((Style)App.Current.Resources["NormalText"])
-                        );
-                s.Setters.Add
-                    (
-                    new Setter
-                        (
-                        Paragraph.FontSizeProperty,
-                        PtToPx(Convert.ToDouble(configs["normal-text-size"]))
-                        )
-                    );
-                s.Setters.Add
-                    (
-                    new Setter
-                        (
-                        Paragraph.TextIndentProperty,
-                        PtToPx(Convert.ToDouble(configs["normal-text-size"]) * 2)
-                        )
-                    );
-                App.Current.Resources["NormalText"] = s;
-                MainTextArea.Width =
-                    PtToPx
-                    (
-                    Convert.ToDouble(configs["normal-text-size"])
-                    * Convert.ToInt32(configs["line-width"])
-                    + 2
-                    );
-            }
-
-            { // Set style for meta text
-                var s =
-                    new Style
-                        (
-                        typeof(Paragraph),
-                        ((Style)App.Current.Resources["MetaText"])
-                        );
-                s.Setters.Add
-                    (
-                    new Setter
-                        (
-                        Paragraph.FontSizeProperty,
-                        PtToPx(Convert.ToDouble(configs["meta-text-size"]))
-                        )
-                    );
-                s.Setters.Add
-                    (
-                    new Setter
-                        (
-                        Paragraph.TextIndentProperty,
-                        PtToPx(Convert.ToDouble(configs["meta-text-size"]) * 2)
-                        )
-                    );
-                App.Current.Resources["MetaText"] = s;
-            }
-
-            { // Set style for header one
-                var s =
-                    new Style
-                        (
-                        typeof(Paragraph),
-                        ((Style)App.Current.Resources["TitleText"])
-                        );
-                s.Setters.Add
-                    (
-                    new Setter
-                        (
-                        Paragraph.FontSizeProperty,
-                        PtToPx(Convert.ToDouble(configs["title-text-size"]))
-                        )
-                    );
-                s.Setters.Add
-                    (
-                    new Setter
-                        (
-                        Paragraph.TextIndentProperty,
-                        PtToPx(Convert.ToDouble(configs["normal-text-size"]) * 2)
-                        )
-                    );
-                App.Current.Resources["TitleText"] = s;
-            }
-
-            { // Set style for header two
-                var s =
-                    new Style
-                        (
-                        typeof(Paragraph),
-                        ((Style)App.Current.Resources["LesserTitleText"])
-                        );
-                s.Setters.Add
-                    (
-                    new Setter
-                        (
-                        Paragraph.FontSizeProperty,
-                        PtToPx(Convert.ToDouble(configs["lesser-title-text-size"]))
-                        )
-                    );
-                s.Setters.Add
-                    (
-                    new Setter
-                        (
-                        Paragraph.TextIndentProperty,
-                        PtToPx(Convert.ToDouble(configs["normal-text-size"]) * 2)
-                        )
-                    );
-                App.Current.Resources["LesserTitleText"] = s;
-            }
-
             // Set text rendering mode
-            switch (configs["text-rendering-mode"])
-            {
-                case "Auto":
-                    TextOptions.SetTextRenderingMode(this, TextRenderingMode.Auto);
-                    break;
-                case "ClearType":
-                    TextOptions.SetTextRenderingMode(this, TextRenderingMode.ClearType);
-                    break;
-                case "GrayScale":
-                    TextOptions.SetTextRenderingMode(this, TextRenderingMode.Grayscale);
-                    break;
-            }
+            TextOptions.SetTextRenderingMode
+                (
+                this,
+                (TextRenderingMode)
+                    Enum.Parse(typeof(TextRenderingMode), configs["text-rendering-mode"])
+                );
         }
 
         private void EditStart()
@@ -353,31 +213,28 @@ namespace Saigong
             IEnumerator<Block> blocks;
             Block b;
 
-            string text = "";
+            StringBuilder sb = new StringBuilder();
 
-            //FormatExisting();
             blocks = from.Document.Blocks.GetEnumerator();
             for (int i = 0; i < from.Document.Blocks.Count; i++)
             {
                 blocks.MoveNext();
                 b = blocks.Current;
-                if (b.Tag == null)
+                if (b.Tag != null)
                 {
-                    text += StyleSymbol[Array.IndexOf(StyleName, "NormalText")];
+                    sb.Append((string)b.Tag);
                 }
-                else
-                {
-                    text += StyleSymbol[Array.IndexOf(StyleName, b.Tag.ToString())];
-                }
-                text += new TextRange(b.ContentStart, b.ContentEnd).Text;
-                text += "\r\n";
+                sb.Append(new TextRange(b.ContentStart, b.ContentEnd).Text);
+                sb.Append("\r\n");
             }
-            File.WriteAllText(dir, text, Encoding.UTF8);
+            File.WriteAllText(dir, sb.ToString(), Encoding.UTF8);
         }
 
         private bool LoadText(string location)
         {
             FileStream fs;
+            FlowDocument doc = new FlowDocument();
+            MainTextArea.Document.Blocks.Clear();
             location = saveLocation + location + saveFormat;
             if (File.Exists(location))
             {
@@ -391,12 +248,31 @@ namespace Saigong
                 {
                     TextRange tr = new TextRange
                         (
-                        MainTextArea.Document.ContentStart,
-                        MainTextArea.Document.ContentEnd
+                        doc.ContentStart,
+                        doc.ContentEnd
                         );
                     tr.Load(fs, DataFormats.Text);
                 }
-                FormatExisting();
+                // Now apply styles to the new text
+                var sc = textClasses.GetSymbolCollection();
+                foreach (var b in doc.Blocks)
+                {
+                    var newp = new Paragraph();
+                    var text = new TextRange(b.ContentStart, b.ContentEnd).Text;
+                    string sym = "";
+
+                    foreach (var s in sc)
+                    {
+                        if (text.StartsWith(s) && s.Length > sym.Length)
+                        {
+                            sym = s;
+                        }
+                    }
+                    newp.Style = textClasses.GetTextClassStyle(sym).DisplayStyle;
+                    newp.Tag = sym;
+                    newp.Inlines.Add(new Run(text.Substring(sym.Length)));
+                    MainTextArea.Document.Blocks.Add(newp);
+                }
                 MainTextArea.Focus();
                 MainTextArea.CaretPosition = MainTextArea.Document.ContentEnd;
                 mainCaretPosition = MainTextArea.CaretPosition;
@@ -525,6 +401,7 @@ namespace Saigong
             if (findStart != MainTextArea.Document.ContentStart)
             {
                 findStart = MainTextArea.Document.ContentStart;
+                // Show From Beginning Sign Here
                 goto BEGIN;
             }
         }
@@ -574,14 +451,10 @@ namespace Saigong
             AddMessage(DateTime.Now.TimeOfDay.ToString(@"hh\:mm"));
         }
 
-        private void ChangeParagraphStyle(Paragraph p, string key)
+        private void ChangeParagraphStyle(Paragraph p, TextClass tc)
         {
-            if (Array.IndexOf(StyleName, key) < 0)
-            {
-                key = "NormalText";
-            }
-            p.Style = (Style)FindResource(key);
-            p.Tag = key;
+            p.Style = tc.DisplayStyle;
+            p.Tag = tc.Symbol;
         }
 
         private void ApplyStyle(KeyEventArgs e)
@@ -590,53 +463,18 @@ namespace Saigong
             {
                 return;
             }
-            Paragraph p = MainTextArea.CaretPosition.Paragraph;
-            int styleNo = Array.IndexOf(StyleKey, e.Key);
-            ListenToStyleChanges = false;
-            if (styleNo > -1)
-            {
-                ChangeParagraphStyle(p, StyleName[styleNo]);
-                e.Handled = true;
-            }
-            else
+            var p = MainTextArea.CaretPosition.Paragraph;
+            var tc = textClasses.GetTextClassStyle(e.Key);
+            if (tc == null)
             {
                 e.Handled = false;
             }
-        }
-
-        private void FormatExisting()
-        {
-            IEnumerator<Block> paras = MainTextArea.Document.Blocks.GetEnumerator();
-            string currentText;
-            Paragraph newPara;
-            List<Block> newBlocks = new List<Block>();
-            for (int i = 0; i < MainTextArea.Document.Blocks.Count; i++)
+            else
             {
-                paras.MoveNext();
-                if (paras.Current.Tag == null)
-                {
-                    currentText = new TextRange(paras.Current.ContentStart, paras.Current.ContentEnd).Text;
-                    newPara = new Paragraph();
-                    foreach (string symbol in StyleSymbol)
-                    {
-                        if (currentText.StartsWith(symbol))
-                        {
-                            currentText = currentText.Remove(0, symbol.Length);
-                            newPara.Tag = StyleName[Array.IndexOf(StyleSymbol, symbol)];
-                            break;
-                        }
-                    }
-                    newPara.Inlines.Add(new Run(currentText));
-                    ChangeParagraphStyle((Paragraph)newPara, newPara.Tag.ToString());
-                }
-                else
-                {
-                    newPara = (Paragraph)paras.Current;
-                }
-                newBlocks.Add(newPara);
+                e.Handled = true;
+                ChangeParagraphStyle(p, tc);
             }
-            MainTextArea.Document.Blocks.Clear();
-            MainTextArea.Document.Blocks.AddRange(newBlocks);
+            ListenToStyleChanges = false;
         }
 
         private void SavePlan(string location)
@@ -725,6 +563,7 @@ namespace Saigong
             if (ListenToStyleChanges)
             {
                 ApplyStyle(e);
+                return;
             }
             if (e.Key == Key.Escape) // Stop searching
             {

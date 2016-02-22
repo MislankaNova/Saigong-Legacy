@@ -4,9 +4,5 @@
 lang: hant
 
 ## main-font-family: Baskerville, Georgia, STSong, SimSun, serif
-## normal-text-size: 18
-## meta-text-size: 16
-## title-text-size: 24
-## lesser-title-text-size: 24
 ## line-width: 24
 ## text-rendering-mode: Aliased

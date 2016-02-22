@@ -1,0 +1,8 @@
+﻿name: NormalText
+key: D0
+symbol: 
+indent:
+
+FontSize: 18
+Foreground: #E0E0E0
+TextAlignment: Left

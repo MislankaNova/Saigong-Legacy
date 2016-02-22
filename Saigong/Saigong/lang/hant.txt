@@ -1,16 +1,16 @@
-﻿title:西江
-startupFinished:萬事俱備
-saved:已保存
-loaded:已載入
-loadFail:載入失敗
-planSaved:計劃已保存
-planLoaded:計劃已載入
-planLoadFail:未能載入計劃
-nullTitle:標題不可為空
-nullOperation:搜索內容不可為空
-notFound:未有找到
-found:已找到
-autoBackupDone:已自動備份
-backupDone:已備份
-chara:字
-shutdown:再見
+﻿title: 西江
+startupFinished: 萬事俱備
+saved: 已保存
+loaded: 已載入
+loadFail: 載入失敗
+planSaved: 計劃已保存
+planLoaded: 計劃已載入
+planLoadFail: 未能載入計劃
+nullTitle: 標題不可為空
+nullOperation: 搜索內容不可為空
+notFound: 未有找到
+found: 已找到
+autoBackupDone: 已自動備份
+backupDone: 已備份
+chara: 字
+shutdown: 再見
