@@ -19,30 +19,30 @@ namespace Saigong
         public Style DisplayStyle;
     }
 
-    class TextClasses
+    static class TextClasses
     {
-        private double PtToPx(double pt)
+        private static double PtToPx(double pt)
         {
             return (pt * 96) / 72;
         }
 
-        Dictionary<string, TextClass> Classes;
+        static Dictionary<string, TextClass> Classes;
 
-        public double NormalTextWidth;
+        static public double NormalTextWidth;
 
-        public TextClasses()
+        static public void LoadStyles()
         {
             Classes = new Dictionary<string, TextClass>();
             NormalTextWidth = 10;
 
-            foreach (var dir in Directory.GetFiles("Saigong/style/"))
+            foreach (var f in Directory.GetFiles(DirectoryManager.StyleDir))
             {
-                var rules = ConfigLoader.LoadConfigFile(dir);
+                var rules = ConfigLoader.LoadConfigFile(f);
                 AddTextClass(rules);
             }
         }
 
-        public void AddTextClass
+        static public void AddTextClass
             (
             string name,
             string symbol,
@@ -58,7 +58,7 @@ namespace Saigong
             Classes[name] = tc;
         }
 
-        public void AddTextClass(Dictionary<string, string> rules)
+        static public void AddTextClass(Dictionary<string, string> rules)
         {
             var tc = new TextClass();
             tc.name = rules["name"];
@@ -121,7 +121,7 @@ namespace Saigong
             Classes[rules["name"]] = tc;
         }
 
-        public TextClass GetTextClassStyleByName(string name)
+        static public TextClass GetTextClassStyleByName(string name)
         {
             if (Classes.ContainsKey(name))
             {
@@ -130,7 +130,7 @@ namespace Saigong
             return null;
         }
 
-        public TextClass GetTextClassStyle(string symbol)
+        static public TextClass GetTextClassStyle(string symbol)
         {
             foreach (var tc in Classes.Values)
             {
@@ -142,7 +142,7 @@ namespace Saigong
             return null;
         }
 
-        public TextClass GetTextClassStyle(Key key)
+        static public TextClass GetTextClassStyle(Key key)
         {
             foreach (var tc in Classes.Values)
             {
@@ -154,7 +154,7 @@ namespace Saigong
             return null;
         }
 
-        public string[] GetSymbolCollection()
+        static public string[] GetSymbolCollection()
         {
             var symbols = new string[Classes.Count];
             int i = 0;
@@ -166,7 +166,7 @@ namespace Saigong
             return symbols;
         }
 
-        public Key[] GetKeyCollection()
+        static public Key[] GetKeyCollection()
         {
             var keys = new Key[Classes.Count];
             int i = 0;

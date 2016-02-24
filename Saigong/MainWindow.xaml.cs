@@ -21,11 +21,6 @@ using System.Windows.Media.Animation;
 
 namespace Saigong
 {
-    public enum StyleName
-    {
-        NormalText, TitleTile, LesserTitleText, MetaText
-    }
-
     public enum EditMode
     {
         Main, Plan
@@ -35,17 +30,8 @@ namespace Saigong
     {
         Lang lang;
         Dictionary<string, string> configs;
-        TextClasses textClasses;
 
         delegate int intDelegate();
-
-        const string saveFormat = ".txt";
-        const string saveLocation = "saves/";
-        const string backLocation = "saves/back/";
-        const string planLocation = "saves/plan/";
-
-        const string dateFormat = "yyyy-M-d";
-        const string datetimeFormat = "yyyy-M-d HHmm";
 
         bool ListenToStyleChanges;
         bool Searching;
@@ -59,6 +45,14 @@ namespace Saigong
 
         List<TextBlock> messageTextBlocks;
 
+        string TextTitle
+        {
+            get
+            {
+                return this.TitleTextArea.Text;
+            }
+        }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -67,8 +61,8 @@ namespace Saigong
 
         private void Initialise()
         {
-            textClasses = new TextClasses();
-            configs = ConfigLoader.LoadConfigFile("Saigong/config.txt");
+            TextClasses.LoadStyles();
+            configs = ConfigLoader.LoadConfigFile();
             if (configs.Keys.Contains("lang"))
             {
                 lang = new Lang(configs["lang"]);
@@ -78,8 +72,9 @@ namespace Saigong
                 lang = new Lang();
             }
             ApplyConfig();
-            Directory.CreateDirectory("saves/back/");
-            Directory.CreateDirectory("saves/plan/");
+            Directory.CreateDirectory(DirectoryManager.SaveDir);
+            Directory.CreateDirectory(DirectoryManager.BackDir);
+            Directory.CreateDirectory(DirectoryManager.PlanDir);
             TitleTextArea.Focus();
             WindowTitle.Text = lang["title"];
             HideHandle();
@@ -97,7 +92,7 @@ namespace Saigong
                 new Paragraph()
                 );
             MainTextArea.Document.Blocks.FirstBlock.Style
-                = textClasses.GetTextClassStyleByName("NormalText").DisplayStyle;
+                = TextClasses.GetTextClassStyleByName("NormalText").DisplayStyle;
         }
 
         // Helper doing what its name says
@@ -124,7 +119,7 @@ namespace Saigong
             MainTextArea.Width =
                 PtToPx
                 (
-                textClasses.NormalTextWidth
+                TextClasses.NormalTextWidth
                 * Convert.ToInt32(configs["line-width"])
                 + 2
                 );
@@ -168,13 +163,13 @@ namespace Saigong
         {
             SaveText
                 (
-                saveLocation + TitleTextArea.Text + saveFormat,
+                DirectoryManager.GetDir(TextTitle, DirType.Save),
                 MainTextArea
                 );
             AddMessage(lang["saved"]);
             SaveText
                 (
-                planLocation + TitleTextArea.Text + saveFormat,
+                DirectoryManager.GetDir(TextTitle, DirType.Plan),
                 PlanTextArea
                 );
             AddMessage(lang["planSaved"]);
@@ -185,22 +180,18 @@ namespace Saigong
             var dir =
                 string.Format
                 (
-                "{0}{1} {2}{3}",
-                backLocation,
-                TitleTextArea.Text,
-
+                "{0} {1}",
+                TextTitle,
                 manual?
-                DateTime.Now.ToString(datetimeFormat)
+                TimeStringManager.GetCurrentDateTimeString()
                 :
-                DateTime.Now.ToString(dateFormat)
-                ,
-                saveFormat
+                TimeStringManager.GetCurrentDateString()
                 );
             if (!File.Exists(dir))
             {
                 SaveText
                     (
-                    dir,
+                    DirectoryManager.GetDir(dir, DirType.Back),
                     MainTextArea
                     );
                 if (manual) AddMessage(lang["backupDone"]);
@@ -230,12 +221,12 @@ namespace Saigong
             File.WriteAllText(dir, sb.ToString(), Encoding.UTF8);
         }
 
-        private bool LoadText(string location)
+        private bool LoadText(string title)
         {
             FileStream fs;
             FlowDocument doc = new FlowDocument();
             MainTextArea.Document.Blocks.Clear();
-            location = saveLocation + location + saveFormat;
+            var location = DirectoryManager.GetDir(title, DirType.Save);
             if (File.Exists(location))
             {
                 fs = new FileStream
@@ -254,7 +245,7 @@ namespace Saigong
                     tr.Load(fs, DataFormats.Text);
                 }
                 // Now apply styles to the new text
-                var sc = textClasses.GetSymbolCollection();
+                var sc = TextClasses.GetSymbolCollection();
                 foreach (var b in doc.Blocks)
                 {
                     var newp = new Paragraph();
@@ -268,7 +259,7 @@ namespace Saigong
                             sym = s;
                         }
                     }
-                    newp.Style = textClasses.GetTextClassStyle(sym).DisplayStyle;
+                    newp.Style = TextClasses.GetTextClassStyle(sym).DisplayStyle;
                     newp.Tag = sym;
                     newp.Inlines.Add(new Run(text.Substring(sym.Length)));
                     MainTextArea.Document.Blocks.Add(newp);
@@ -420,7 +411,7 @@ namespace Saigong
 
         private void LoadFile()
         {
-            if (LoadText(TitleTextArea.Text))
+            if (LoadText(TextTitle))
             {
                 AddMessage(lang["loaded"]);
                 nameWhenLoad = TitleTextArea.Text;
@@ -430,7 +421,7 @@ namespace Saigong
             {
                 AddMessage(lang["loadFail"]);
             }
-            if (LoadPlan(TitleTextArea.Text))
+            if (LoadPlan(TextTitle))
             {
                 AddMessage(lang["planLoaded"]);
             }
@@ -464,7 +455,7 @@ namespace Saigong
                 return;
             }
             var p = MainTextArea.CaretPosition.Paragraph;
-            var tc = textClasses.GetTextClassStyle(e.Key);
+            var tc = TextClasses.GetTextClassStyle(e.Key);
             if (tc == null)
             {
                 e.Handled = false;
@@ -477,24 +468,10 @@ namespace Saigong
             ListenToStyleChanges = false;
         }
 
-        private void SavePlan(string location)
-        {
-            IEnumerator<Block> paras = PlanTextArea.Document.Blocks.GetEnumerator();
-            string toSave = "";
-            location = planLocation + location + saveFormat;
-            for (int i = 0; i < PlanTextArea.Document.Blocks.Count; i++)
-            {
-                paras.MoveNext();
-                toSave += new TextRange(paras.Current.ContentStart, paras.Current.ContentEnd).Text;
-                toSave += "\r\n";
-            }
-            File.WriteAllText(location, toSave, Encoding.UTF8);
-        }
-
-        private bool LoadPlan(string location)
+        private bool LoadPlan(string title)
         {
             FileStream fs;
-            location = planLocation + location + saveFormat;
+            var location = DirectoryManager.GetDir(title, DirType.Plan);
             if (File.Exists(location))
             {
                 fs = new FileStream

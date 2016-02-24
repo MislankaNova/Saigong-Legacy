@@ -46,10 +46,11 @@ namespace Saigong
             }
 
             Dictionary<string, string> langFile =
-                ConfigLoader.LoadConfigFile("Saigong/lang/" + name + ".txt");
+                ConfigLoader.LoadConfigFile(DirectoryManager.LangDir + name + DirectoryManager.SaveExtension);
 
             if (langFile == null)
             {
+
                 return;
             }
 
@@ -62,30 +63,6 @@ namespace Saigong
             }
 
             return;
-
-            // Then the language file should be loaded
-            if (! File.Exists("lang/" + name + ".txt"))
-            {
-                return;
-            }
-
-            // Only UTF-8 text can be readed
-            StreamReader sr = File.OpenText("Saigong/lang/" + name + ".txt");
-            while (! sr.EndOfStream)
-            {
-                string line = sr.ReadLine();
-                string[] splited = line.Split(':');
-                if (splited.Count() != 2)
-                {
-                    break;
-                }
-                if (! this.Keys.Contains(splited[0]))
-                {
-                    return;
-                }
-
-                this[splited[0]] = splited[1];
-            }
         }
     }
 }

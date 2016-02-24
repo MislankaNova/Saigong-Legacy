@@ -1,8 +1,0 @@
-﻿name: QuoteText
-key: Q
-symbol: > 
-indent:
-
-FontSize: 18
-Foreground: #D0D0D0
-TextAlignment: Left

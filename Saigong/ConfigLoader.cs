@@ -10,8 +10,13 @@ namespace Saigong
     {
         public static string CommentSymbol = "##";
 
-        public static Dictionary<string, string> LoadConfigFile(string dir)
+        public static Dictionary<string, string> LoadConfigFile(string dir=null)
         {
+            if (dir == null)
+            {
+                dir = DirectoryManager.ConfigFileDir;
+            }
+
             if (! File.Exists(dir))
             {
                 return null;
